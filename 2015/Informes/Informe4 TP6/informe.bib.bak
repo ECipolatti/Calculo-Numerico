@@ -1,0 +1,27 @@
+%%
+%% WinShell 3.3.2.6
+%% http://www.winshell.org/
+%%
+
+% Strings
+
+
+% Preamble
+
+
+% BibTeX Entries
+@book{burden,
+ author               = {Richard L. Burden},
+ booktitle            = {Análisis Numérico},
+ edition              = {7},
+ publisher            = {Thomson Learning},
+ title                = {Análisis Numérico},
+ year                 = {2002},
+ }
+ 
+ @misc{cn2014,
+ author               = {Victorio Sonzogni},
+ title                = {Cálculo Numérico - Apuntes de Cátedra},
+ year                 = {2014},
+ }
+ 

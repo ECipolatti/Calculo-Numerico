@@ -1,0 +1,671 @@
+\documentclass[conference,a4paper,10pt,oneside,final]{informe}
+\usepackage[latin1]{inputenc}   			% caracteres especiales (acentos, eñes)
+\usepackage[spanish]{babel}     			% varias definiciones para el español
+\usepackage{graphicx}           			% inserción de graficos
+\usepackage{mathtools}          			% fórmulas matemáticas
+\usepackage{hyperref}					% hipervínculos
+\usepackage{listings}					% para formatear el código fuente
+\usepackage[usenames,dvipsnames]{color}	% color
+\usepackage[table]{xcolor}				% color en tablas
+\usepackage{color}
+\usepackage{setspace}
+\usepackage[spanish]{algorithm2e}
+
+\renewcommand{\thetable}{\arabic{table}}
+\definecolor{light-gray}{gray}{0.75}
+
+\begin{document}
+
+\title{Informe II:\\
+       Trabajo Práctico 3}
+
+\author{Edgardo Cipolatti\\
+\textit{edgardocipolatti@hotmail.com}}
+
+\markboth{CÁLCULO NUMÉRICO - AÑO 2015}{}
+
+\maketitle
+
+\section{Ejercicio 7}
+Resuelva el siguiente sistema de ecuaciones lineales con todos los métodos
+presentados en esta guía. Utilice una tolerancia en el residuo de 10e-5 para la convergencia. En cada
+caso, estime el costo del método en función del tiempo reloj de ejecución (comandos tic y toc de
+Scilab / Octave), el número de iteraciones, tasa de convergencia (realizar gráficas semilogarítmicas
+norma del residuo vs. número de iteraciones), etc. Compare los resultados con el método directo de
+Gauss, justificando si es necesario o no utilizar alguna estrategia de pivoteo. Analizar los resultados
+obtenidos e indicar cual método piensa ud. que es el más conveniente? Cómo justifica que los
+métodos iterativos logren o no convergencia? Qué expectativa puede tener sobre la precisión de los
+resultados obtenidos? Las entradas de la matriz de coeficientes del sistema lineal son,
+
+\begin{figure}[tbhp]
+\centerline{\includegraphics[scale=0.35]{ej1}}
+\caption{}
+\label{figura1}
+\end{figure}
+
+con i = 1; . . . ;N y N = 250; 500; 1000. Las entradas del vector de términos independientes son
+$b_i$ = $\pi$. Utilice la norma infinito.
+\vspace{0.5cm}
+
+Para comenzar de definió una función(script) \hyperref[alg1]{make\_matrix}  , cuya función es la de crear matrices de tamaño n pasado como parámetro, según la especificación de la \hyperref[figura1]{figura 1}:
+
+
+
+A continuación se definió, la función \hyperref[alg8]{make\_T} cuyo objetivo es el de encontrar las matrices T respectivas para cada método, el cual es seleccionado en el parámetro con el mismo nombre,(1.Jacobi, 2. Gauss-Seidel, 3.SOR). Y calcular el rho(Radio Espectral) correspondiente con el objetivo final de verificar la convergencia del método previo a su implementación.\\
+
+
+Habiendo obtenido los Radios de convergencia respectivos.
+Se verifica la convergencia de los métodos de Jacobi y de Gauss-Seidel, a partir del Teorema 7.19 \cite[p.~444]{burden} "Para cualquier \( x^{(0)} \ni R^{n} \) ,la sucesión \( \lbrace x^{(k)}\rbrace _{k=0}^{\infty} \) definida por \(x^{(k)} = T x^{(k-1)} + c\), para cada \(k \geq 1\). Converge a la solución única de x = Tx + c si y solo si \(\rho(T)<1\)".\\
+La convergencia del método SOR se verifica con el Teorema 7.19 \cite[p.~444]{burden} y del Teorema 7.24 \cite[p.~449]{burden} "Si \( a_{ii} \neq 0 \) para cada i=1,2,...,n entonces  \( \rho (T_{\omega}) \geq \mid \omega - 1 \mid   \). Ello significa que el método SOR puede converger solo si $0<\omega<2$". Tomando $\omega$ = 0.9 se verifica el Teorema 2 .\\
+A continuación se listan los respectivos resultados:
+
+ \begin{tabular}{|c|c|c|c|c|c|}
+ \hline 
+   & Jacobi & GS & SOR & GC & Gauss \\ 
+ \hline 
+ T[s] 250 & 0.13 & 0.039 & 0.039 & 0.038 & 0.446 \\ 
+ \hline 
+ T[s] 500 & 0.45 & 0.107 & 0.094 & 0.362 & 2.92 \\ 
+ \hline 
+ T[s] 1000 & 1.48 & 0.338 & 0.283 & 1.884 & 20.7 \\ 
+ \hline 
+ $\rho$ 250 & 0.75 & 0.37 & 0.35 & - & - \\ 
+ \hline 
+ $\rho$ 500 & 0.75 & 0.37 & 0.35 & - & - \\ 
+ \hline 
+ $\rho$ 1000 & 0.75 & 0.37 & 0.35 & - & - \\ 
+ \hline
+  N° It 250 & 32 & 8 & 10 & 238 & - \\ 
+ \hline
+  N° It 500 & 32 & 8 & 10 & 325 & - \\ 
+ \hline
+  N° It 1000 & 32 & 8 & 10 & 438 & - \\ 
+ \hline
+ \end{tabular} 
+ 
+\vspace{0.5cm}
+Para realizar la comparación se utilizo el método de Gauss sin pivoteo, el mismo fue elegido en base al Teorema 6.18 \cite[p.~398]{burden} " Se dice que la matriz A de nxn es estrictamente diagonal dominante cuando \( \mid a_{ii} \mid > \sum_{ j=1 j \neq i}^n \mid a_{ij} \mid \)". Y al  Teorema 6.19 \cite[p.~398]{burden} "Una matriz A estrictamente diagonal dominante es no singular. Más aún, en este caso podemos realizar la eliminación gaussiana de cualquier sistema lineal de la forma Ax=b para obtener su solución única sin intercambio de renglones ni columnas[...]".
+ A continuación se listan los algoritmos utilizados para la aplicación de los diferentes métodos, se utilizó error relativo como criterio de convergencia para Jacobi, Gauss-Seidel y SOR, para Gradiente conjugado se uso la norma infinita del error. Los mismos están ubicados en el Apéndice:\\
+ 
+ \begin{itemize}
+ \item \hyperref[alg2]{Jacobi}
+ \item \hyperref[alg3]{Gauss Seidel}
+ \item \hyperref[alg4]{SOR}
+ \item \hyperref[alg5]{Gradiente conjugado}
+ \item \hyperref[alg6]{Gauss}
+ \end{itemize} 
+
+\vspace{0.25cm}
+Para realizar la comparación por tasa de convergencia, se implementaron gráficas semi-logarítmicas que recibe por parámetro el histórico de residuos, generando norma del residuo vs. número de iteraciones correspondientes. Se implementaron todos los métodos, con la verificación de su posible utilización, en el algoritmo \ref{alg9}  y a continuación se muestra las gráficas resultantes:\\
+
+\begin{figure}[tbhp]
+\centerline{\includegraphics[scale=0.4]{fig1}}
+\caption{Matriz de 250x250 elementos. Todos los Métodos}
+\label{fig1}
+\end{figure}
+
+\begin{figure}[tbhp]
+\centerline{\includegraphics[scale=0.4]{fig4}}
+\caption{Matriz de 250x250 elementos. Jacobi, Gauss-Seidel y SOR}
+\label{fig2}
+\end{figure}
+
+\begin{figure}[tbhp]
+\centerline{\includegraphics[scale=0.4]{fig2}}
+\caption{Matriz de 500x500 elementos. Todos los Métodos}
+\label{fig3}
+\end{figure}
+
+\begin{figure}[tbhp]
+\centerline{\includegraphics[scale=0.4]{fig5}}
+\caption{Matriz de 500x500 elementos. Jacobi, Gauss-Seidel y SOR}
+\label{fig4}
+\end{figure}
+
+\begin{figure}[tbhp]
+\centerline{\includegraphics[scale=0.4]{fig3}}
+\caption{Matriz de 1000x1000 elementos. Todos los Métodos}
+\label{fig5}
+\end{figure}
+
+\begin{figure}[tbhp]
+\centerline{\includegraphics[scale=0.4]{fig6}}
+\caption{Matriz de 1000 elementos. Jacobi, Gauss-Seidel y SOR}
+\label{fig6}
+\end{figure}
+
+
+
+Se calculó el número de condición para interpretar la veracidad del término de error.  Se utilizo la siguiente función, $ \kappa (A) = \vert \vert A \vert \vert * \vert \vert A^{-1}\vert \vert  $  , tomando la norma infinita. Los valores calculados son:\\
+Siendo estos valores:
+\begin{itemize}
+\item K(250)=510
+\item K(500)=1028
+\item K(1000)=2064
+\end{itemize}
+
+\vspace{1.0 cm}
+
+Conclusión:\\
+Se observa convergencia de todos los métodos. En especial Jacobi, Gauss-Seidel y SOR donde se verifico la convergencia de forma previa a la aplicación de los respectivos procedimientos y cálculos para las 3 matrices.
+
+Los resultados finales indican que la velocidad de convergencia es según el siguiente Orden: Gauss-Seidel, SOR, Jacobi y Gradiente conjugado.\\
+Los métodos siempre arriban a buenos resultados, y el calculo del residuo de los mismo es muy pequeño. Estos es consecuencia de la estrecha relación que existe entre el residuo y el número de condición(Teorema 7.27 \cite[p.~455]{burden} ), con un numero de condición muy alto, el hecho de que los residuos sean pequeños no son una garantía de que el error sea mínimo. En este caso particular se llega a muy buenos resultados ya que la matriz es EDD.\\
+Sujeto a esto para este caso gradiente conjugado es ineficaz. El método utilizado es el del máximo descenso, que calcula el negativo del gradiente que es la dirección del máximo descenso de la función, calculando el mismo a partir del residuo de la forma \( r^{(k)} = b - A x^{(k)} \). Entonces el número de condición muy alto indica que las aproximaciones no son buenas y en consecuencia que los residuos calculados no lo sean tampoco. Dando como resultado que el método deba realizar un número muy grande de iteraciones hasta cumplir con la condición de corte, donde la norma infinita del error debe ser menor que $ 10 * e^{-5} $.\\
+
+Por lo tanto, según los resultados obtenidos, el método mas conveniente es el método de Gauss-Seidel, siendo el que arriba al resultado en el menor tiempo, consecuencia de un menor número de Iteraciones.
+
+\section{Ejercicio 8}
+Resuelva los siguientes sistemas lineales con el método de Gauss-Seidel
+y analice lo que sucede en cada caso. Luego intente resolverlos mediante el método directo de
+eliminación de Gauss. Es necesario aplicar alguna estrategia de pivoteo? Si lo fuera, justifique por
+qué.\\
+
+
+\(
+\left . 
+      \begin{matrix}
+         3x + y + z = 5\\
+		 x +3y -z = 3 \\
+		3x +y -5z = -1
+      \end{matrix}
+   \right \}
+\)\qquad (1)\\
+
+\(
+\left . 
+      \begin{matrix}
+         3x + y + z = 5\\
+		 3x +y -5z = -1\\
+		 x +3y -z = 3 	
+      \end{matrix}
+   \right \}
+\)\qquad (2)\\
+
+\vspace{0.75cm}
+
+Utilizando el algoritmo de Gauss Seidel para sistema de ecuaciones (1) obtengo el siguiente resultado en 11 iteraciones, un tiempo de 0,002 segundos y con una tolerancia de error de 1e-5.
+
+\begin{center}
+\( 
+\begin{bmatrix}
+	0.9999991\\
+    1.0000007\\  
+    0.9999996
+\end{bmatrix}\)\\
+\end{center}
+
+El algoritmo de Gauss-Seidel para el sistema de ecuaciones (2) corta por límite de iteraciones (100) y arroja el siguiente resultado:
+\begin{center}
+\( 10^{125} *
+\begin{bmatrix}
+	2.081159  \\
+  - 29.51648  \\
+  - 86.46828 
+\end{bmatrix}\)
+\end{center}sabemos que este resultado es erróneo en base a la comparación con el resultado del método directo de eliminación de Gauss. A demás el radio espectral de la matriz es mayor a 1 entonces el método diverge.\\
+
+Aplicando el método directo de eliminación por Gauss para la obtención de la solución exacta del sistema de ecuaciones (1), nos encontramos con el resultado:
+
+\begin{center}
+\( x=
+\begin{bmatrix}
+	1& 1& 1
+\end{bmatrix}^{t}\)\\
+\end{center}
+
+El mismo fue obtenido sin estrategia de pivoteo ya que la matriz es estrictamente diagonal dominante Teorema 6.19 \cite[p.~398]{burden}. Esto se puede comprobar utilizando el siguiente algoritmo \hyperref[alg7]{es\_EDD} .\\
+
+Para la resolución del sistema (2) se necesita usar Gauss con pivoteo ya que la matriz no es estrictamente diagonal dominante. Por inspección visual en el segundo reglón tenemos que el valor absoluto del elemento de la diagonal es 1 y la suma de los valores absolutos de los demás elementos es 8, por ende no es E.D.D. Teorema 6.18 \cite[p.~398]{burden} . Además podemos observar que no es simétrica definida positiva. Somos capaces de verificarlo de dos maneras; la primera es que vemos un elemento negativo en la diagonal Teorema 6.21 \cite[p.~401]{burden} y la segunda manera es verificarlo con el siguiente algoritmo \hyperref[alg11]{es\_SDP} .\\
+
+
+
+Utilizando el algoritmo antes mencionado se obtiene el resultado exacto del sistema el cual es:
+\begin{center}
+\( x=
+\begin{bmatrix}
+	1& 1& 1
+\end{bmatrix}^{t}\)\\
+\end{center}
+
+
+Como conclusión podemos rescatar que el método de Gauss-Seidel obtiene buenos resultado solo si el número de condición es bajo y el radio espectral de la matriz es menor a uno (ya que diverge en caso contrario) Teorema 7.19 \cite[p.~444]{burden} . Aún así conviene usar el método de Gauss (con estrategia de pivoteo de ser necesario) para matrices chicas, ya que obtenemos la solución exacta del sistema.
+ 
+\vspace{0,75cm}
+
+
+\nocite{*}
+\bibliographystyle{informe}
+\bibliography{informe}
+
+
+% anexo. cambia de doble a simple columna
+\onecolumn										
+\section*{Anexo}									% sección 'Anexo' sin numeración
+\renewcommand{\thesection}{\Alph{section}}	% las siguientes secciones con letras en vez de número
+\setcounter{section}{0}							% equivalente a la letra "A"
+
+\section{Apéndice}
+A continuación se muestran los códigos utilizados para el desarrollo de este trabajo práctico:
+
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=MatLab,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true
+  tabsize=3
+}
+\begin{algorithm}[tbhp]
+\begin{lstlisting}
+function [A,b,x0] = make_matrix(n)
+    A = zeros(n,n);
+    b = pi * ones(n,1);
+    x0 = zeros(n,1);
+    for i = 1 : n
+        A(i,i) = 2 * i;
+        for j = 1 : n
+            if ((j == i-2) || (j == i+2)) 
+                A(i,j) = 0.5 * i;
+            end
+            if ((j == i-4) || (j == i+4)) 
+                A(i,j) = 0.25 * i;
+            end
+        end
+    end
+end
+
+\end{lstlisting}
+\caption{Make Matrix}
+\label{alg1}
+\end{algorithm}
+
+\begin{algorithm}[tbhp]
+ \begin{lstlisting}
+ function [x, nit, rh,t] = jacobi(A, b, x0, max_it, tol)
+    tic;
+    nit = 0;
+    [m,n]= size(A);
+    r=1.0;
+    rh=[];
+    x=x0;
+    
+    while(r>tol && nit < max_it)
+        xold = x;
+        for i=1:n
+            x(i) = (b(i) - A(i,1:i-1) * xold(1:i-1) - A(i,i+1:n) * xold(i+1:n)) / A(i,i);
+        end
+		r = norm(x - xold, Inf) / norm(x, Inf);
+		rh = [rh,r];
+		nit = nit +1;
+    end
+    if (r<tol) 
+        disp('sale por error menor a la tolerancia');
+    else
+        disp('sale por cantidad de iteraciones');
+    end
+    
+    disp(nit);
+    t=toc;
+end
+
+ \end{lstlisting}
+\caption{Método de Jacobi}
+\label{alg2}
+\end{algorithm} 
+ 
+\begin{algorithm}[tbhp] 
+ \begin{lstlisting}
+ function [x,nit,rh,t] = gauss_seidel(A,b,x0,maxit,tol)
+    tic;
+    nit = 0;
+    [m,n] = size(A);
+    r = 1.0;
+    rh = [];
+    x = x0;
+    
+    while (r > tol && nit < maxit)
+        xold = x;
+        
+        for i = 1 : n
+            x(i) = (b(i) - A(i,1:i-1)*x(1:i-1) - A(i,i+1:n)*xold(i+1:n)) / A(i,i);
+			
+        end
+        
+        r = norm(x-xold, inf) / norm(x, inf);
+        rh = [rh,r];
+        nit = nit + 1;
+        
+        if r <= tol 
+            disp('Proceso finalizado por tolerancia de error');
+            
+        end
+        
+        if nit >= maxit 
+            disp('Proceso finalizado por límite de iteraciones');
+            
+        end
+    end
+    t =toc;
+end
+\end{lstlisting}
+\caption{Método de Gauss Seidel}
+\label{alg3}
+\end{algorithm}
+
+
+\begin{algorithm}[tbhp]
+ \begin{lstlisting}
+ function [x,nit,rh,t]=sor_gs(A,b,x0,maxit,tol,w)
+    tic
+    nit=0;
+    [m,n]=size(A);
+    r=1.0;
+    rh=[];
+    x=x0;
+    while(r>tol && nit<maxit)
+        xold=x;
+        for i=1:n
+            x(i)= (1-w)*xold(i)+(w/A(i,i))*(b(i)-A(i,1:i-1)*x(1:i-1)-A(i,i+1:n)*xold(i+1:n))/A(i,i);%esta ultima xold tmb se puede poner x, xq los valores de 1+1:n todavia no los toque y siguen siendo los valores viejos.
+        end
+        r=norm(x-xold, inf)/norm(x, inf);
+        rh=[rh,r];
+        nit=nit +1;
+    end
+    t=toc;
+end
+ \end{lstlisting}
+ \caption{Método de Sobre Relajación}
+\label{alg4}
+\end{algorithm}
+ 
+ \begin{algorithm}[tbhp]
+ \begin{lstlisting}
+ function[x_k, k , rh,t]=gc(A,b,x0,max_it,tol)
+    tic;
+    k=0;
+    x_k = x0;
+    r_k= b - A * x_k;
+    minf = max(abs(r_k)); 
+    %minf = norm (r_k, "inf");
+    rh = minf;
+    v_kp1 = r_k;                               % //primer direccion de busqueda (descenso mÃ¡s rÃ¡pido)
+    while(k <= max_it && minf > tol)
+        dot1 = sum(r_k.^2);                     %//calculo el salto (las tres lineas)
+        vaux = A * v_kp1;
+        dot2 = v_kp1' * vaux;
+        t_kp1 = dot1/dot2;                      %// t pelito (cuanto salto)
+        x_kp1 = x_k + t_kp1 * vaux;             %//nuevo punto despues del salto
+        r_kp1 = r_k - t_kp1 * vaux;             %// CÃ¡lculo de la siguiente direccion de busqueda por GC
+        s_kp1 = sum(r_kp1.^2)/dot1;
+        v_kp1 = r_kp1 + s_kp1 * v_kp1;
+        r_k = r_kp1;
+        
+        minf= max(abs(r_k));
+        rh = [rh, minf];
+        x_k = x_kp1;
+        k = k +1;
+        end;
+        t=toc;
+end
+ \end{lstlisting} 
+\caption{Método Gradiente Conjugado}
+\label{alg5}
+\end{algorithm} 
+ 
+ \begin{algorithm}[tbhp]
+ \begin{lstlisting}
+ function [x] = gauss(A,b)
+  [m,n] = size(A);
+  x = zeros(n);
+   
+  for k = 1 : n-1 %// desde k = 1 hasta n-1 con incremento de 1
+  %// calcula los multiplicadores
+  A(k+1:n,k) = A(k+1:n,k) / A(k,k);
+   
+  %// eliminación
+  for j = k+1 : n %// desde j = k+1 hasta n con incremento de 1
+  A(k+1:n,j) = A(k+1:n,j) - A(k+1:n,k) * A(k,j);
+  end
+   
+  b(k+1:n) = b(k+1:n) - A(k+1:n,k)*b(k);
+  end
+  x = backsub(A,b);
+end
+
+function [x] = backsub(U,b)
+	n = length(U(:,1));
+	[m,n] = size(U);
+	tol = 10^(-9);
+	x = zeros(n, 1);
+	if(abs(U(n,n)) < tol)
+		disp('No se puede seguir con las sust.');
+		return;
+	end
+	x(n) = b(n)/U(n,n);
+    for i = n-1: -1 : 1,
+            if(abs(U(i,i)) < tol)
+                disp('No se puede seguir con las sust.');
+                return;
+            end
+            x(i) = (b(i) - sum(U(i, i+1:n)*x(i+1:n)))/U(i,i);
+    end
+end
+ \end{lstlisting}
+\caption{Método de Gauss}
+\label{alg6}
+\end{algorithm} 
+ 
+\begin{algorithm}[tbhp]
+\begin{lstlisting}
+function [resp]=es_EDD(A)
+    [m,n]=size(A);
+    
+    for i=1:m
+        if(abs(A(i,i)))<(sum(abs(A(i,1:n)))-abs(A(i,i))) %//Si el valor sobre la diagonal es menor que la suma de los valores de ese renglon - el pivot, retorno
+        disp ('NO ES EDD');
+        resp=0;%//0 = No es EDD.
+        return;
+        end
+    end
+    disp ('SI ES EDD');
+    resp=1;
+end
+\end{lstlisting}
+\caption{Verificación de EDD }
+\label{alg7}
+\end{algorithm}
+
+\begin{algorithm}[tbhp]
+\begin{lstlisting}
+
+function [T,D,L,U,rho] = make_t(A,method,w)
+    [m,n] = size(A);
+    T = zeros(n,n);
+    D = zeros(n,n);
+    L = zeros(n,n);
+    U = zeros(n,n);
+    
+    for i = 1 : n
+        D(i,i) = A(i,i);
+        for j = i + 1 : n 
+            U(i,j) = -A(i,j);
+            L(j,i) = -A(j,i);
+        end
+    end
+    
+    switch method
+        case 1  T = inv(D) * (L + U);                   % jacobi
+        case 2  T = inv(D - L) * U;                     % gauss-seidel
+        case 3  T = inv(D - w*L) * ((1-w) * D + w*U);   % SOR
+        otherwise T = inv(D) * (L + U);
+    end
+    rho = norm(T);
+   
+end
+
+\end{lstlisting}
+\caption{Make T}
+\label{alg8}
+\end{algorithm}
+
+\begin{algorithm}
+\begin{lstlisting}
+[A250,b250,x0250] = make_matrix(250);
+[A500,b500,x0500] = make_matrix(500);
+[A1000,b1000,x01000] = make_matrix(1000);
+
+[T21,D21,L21,U21,rho21] = make_t(A250,1,0.9);
+[T22,D22,L22,U22,rho22] = make_t(A250,2,0.9);
+[T23,D23,L23,U23,rho23] = make_t(A250,3,0.9);
+[T51,D51,L51,U51,rho51] = make_t(A500,1,0.9);
+[T52,D52,L52,U52,rho52] = make_t(A500,2,0.9);
+[T53,D53,L53,U53,rho53] = make_t(A500,3,0.9);
+[T11,D11,L11,U11,rho11] = make_t(A1000,1,0.9);
+[T12,D12,L12,U12,rho12] = make_t(A1000,2,0.9);
+[T13,D13,L13,U13,rho13] = make_t(A1000,3,0.9);
+
+[x2j, nit2j, rh2j,t2j] = jacobi(A250, b250, x0250, 1000, 10e-5);
+[x5j, nit5j, rh5j,t5j] = jacobi(A500, b500, x0500, 1000, 10e-5);
+[x1j, nit1j, rh1j,t1j] = jacobi(A1000, b1000, x01000, 1000, 10e-5);
+
+[x2g, nit2g, rh2g,t2g] = gauss_seidel(A250, b250, x0250, 1000, 10e-5);
+[x5g, nit5g, rh5g,t5g] = gauss_seidel(A500, b500, x0500, 1000, 10e-5);
+[x1g, nit1g, rh1g,t1g] = gauss_seidel(A1000, b1000, x01000, 1000, 10e-5);
+
+[x2s, nit2s, rh2s,t2s] = sor_gs(A250, b250, x0250, 1000, 10e-5, 0.9);
+[x5s, nit5s, rh5s,t5s] = sor_gs(A500, b500, x0500, 1000, 10e-5, 0.9);
+[x1s, nit1s, rh1s,t1s] = sor_gs(A1000, b1000, x01000, 1000, 10e-5, 0.9);
+
+[x_k250, k250 , rh2gc,t2gc]=gc(A250,b250,x0250,1000,10e-5);
+[x_k500, k500 , rh5gc,t5gc]=gc(A500,b500,x0500,1000,10e-5);
+[x_k1000, k1000 , rh1gc,t1gc]=gc(A1000,b1000,x01000,1000,10e-5);
+
+%GRAFICAS------------------
+figure(1)
+hold on;
+plot(log10(rh2j),'r');
+hold on;
+plot(log10(rh2g),'b');
+hold on;
+plot(log10(rh2s),'g');
+hold on;
+plot(log10(rh2gc),'k');
+legend('Jacobi', 'Gauss-Seidel', 'SOR', 'Gradiente Conjugado');
+xlabel('Iteraciones');
+ylabel('log(residuo)');
+title('Matriz de 250x250 elementos');
+
+figure(4)
+hold on;
+plot(log10(rh2j),'r');
+hold on;
+plot(log10(rh2g),'b');
+hold on;
+plot(log10(rh2s),'g');
+legend('Jacobi', 'Gauss-Seidel', 'SOR');
+xlabel('Iteraciones');
+ylabel('log(residuo)');
+title('Matriz de 250x250 elementos');
+
+figure(2)
+hold on;
+plot(log10(rh5j),'r');
+hold on;
+plot(log10(rh5g),'b');
+hold on;
+plot(log10(rh5s),'g');
+hold on;
+plot(log10(rh5gc),'k');
+legend('Jacobi', 'Gauss-Seidel', 'SOR', 'Gradiente Conjugado');
+xlabel('Iteraciones');
+ylabel('log(residuo)');
+title('Matriz de 500x500 elementos');
+\end{lstlisting}
+\caption{Aplicación de todos los métodos, (Parte 1)}
+\label{alg9}
+\end{algorithm}
+
+\begin{algorithm}
+\begin{lstlisting}
+figure(5)
+hold on;
+plot(log10(rh5j),'r');
+hold on;
+plot(log10(rh5g),'b');
+hold on;
+plot(log10(rh5s),'g');
+legend('Jacobi', 'Gauss-Seidel', 'SOR');
+xlabel('Iteraciones');
+ylabel('log(residuo)');
+title('Matriz de 500x500 elementos');
+
+figure(3)
+hold on;
+plot(log10(rh1j),'r');
+hold on;
+plot(log10(rh1g),'b');
+hold on;
+plot(log10(rh1s),'g');
+hold on;
+plot(log10(rh1gc),'k');
+legend('Jacobi', 'Gauss-Seidel', 'SOR', 'Gradiente Conjugado');
+xlabel('Iteraciones');
+ylabel('log(residuo)');
+title('Matriz de 1000x1000 elementos');
+
+figure(6)
+hold on;
+plot(log10(rh1j),'r');
+hold on;
+plot(log10(rh1g),'b');
+hold on;
+plot(log10(rh1s),'g');
+legend('Jacobi', 'Gauss-Seidel', 'SOR');
+xlabel('Iteraciones');
+ylabel('log(residuo)');
+title('Matriz de 1000x1000 elementos');
+\end{lstlisting}
+\caption{Aplicación de todos los métodos (Parte 2)}
+\label{alg9-2}
+\end{algorithm}
+
+
+\begin{algorithm}
+\begin{lstlisting}
+function y = es_sdp(A)
+    [m,n] = size(A);
+
+    y=es_simetrica(A);
+    if y ;
+        %// controla si la matriz es definida positiva
+        for i = 1 : n
+            if det(A(1:i,1:i)) <= 0 ;
+                disp('La matriz no es simétrica definida positiva.');
+                y = false;
+                return;
+            end
+        end
+        disp('La matriz es Simétrica Definida Positiva');
+        y = true;
+    end     
+end
+\end{lstlisting}
+\caption{es\_SDP}
+\label{alg11}
+\end{algorithm}
+
+\end{document}

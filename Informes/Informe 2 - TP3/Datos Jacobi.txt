@@ -1,0 +1,21 @@
+Datos:
+
+Numero de Interaciones:
+-32
+-32
+-32
+
+Rho:
+-0.75
+-0.75
+-0.75
+
+Tiempos(Jacobi):
+-0.163
+-0.469
+-2.01
+
+Tiempos(Gauss sin pivoteo):
+-0.446
+-2.92
+-20.7

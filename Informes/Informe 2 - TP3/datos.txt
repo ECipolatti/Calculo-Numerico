@@ -1,0 +1,56 @@
+----- Jacobi -----
+
+n = 250
+* time 	= 0.138 seg
+
+n = 500
+* time 	= 0.451 seg
+
+n = 1000
+* time 	= 1.483 seg
+
+
+----- Gauss-Seidel -----
+
+n = 250
+* time 	= 0.041 seg
+
+n = 500
+* time 	= 0.100 seg
+
+n = 1000
+* time 	= 0.330 seg
+
+
+----- SOR - w = 0.9 -----
+
+n = 250
+* rho 	= 0.35 
+* nit 	= 8
+* time 	= 0.039 seg
+
+n = 500
+* rho 	= 0.35
+* nit 	= 8
+* time 	= 0.094 seg
+
+n = 1000
+* rho 	= 0.35
+* nit 	= 8
+* time 	= 0.283 seg
+
+
+
+----- Gradiente Conjugado -----
+
+n = 250
+* nit 	= 238
+* time 	= 0.038
+
+n = 500
+* nit 	= 325
+* time 	= 0.362
+
+n = 1000
+* nit 	= 438
+* time 	= 1.884

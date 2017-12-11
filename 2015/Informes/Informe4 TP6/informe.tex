@@ -1,0 +1,306 @@
+\documentclass[conference,a4paper,10pt,oneside,final]{informe}
+\usepackage[latin1]{inputenc}   			% caracteres especiales (acentos, eñes)
+\usepackage[spanish]{babel}     			% varias definiciones para el español
+\usepackage{graphicx}           			% inserción de graficos
+\usepackage{mathtools}          			% fórmulas matemáticas
+\usepackage{hyperref}					% hipervínculos
+\usepackage{listings}					% para formatear el código fuente
+\usepackage[usenames,dvipsnames]{color}	% color
+\usepackage[table]{xcolor}				% color en tablas
+\usepackage{color}
+\usepackage{setspace}
+\usepackage[spanish]{algorithm2e}
+
+\renewcommand{\thetable}{\arabic{table}}
+\definecolor{light-gray}{gray}{0.75}
+
+\begin{document}
+\onecolumn
+\title{Informe IV:\\
+       Trabajo Práctico 6}
+
+\author{Edgardo Cipolatti\\
+\textit{edgardocipolatti@hotmail.com}}
+
+\markboth{CÁLCULO NUMÉRICO - AÑO 2015}{}
+
+\maketitle
+\section{Ejercicio 9}
+
+En un circuito con un voltaje impreso $\varepsilon(t)$ y una inductacia $L$, la primera ley de Kirchhoff nos da la siguiente relación
+\begin{align*}
+\varepsilon(t)=L\frac{\mathrm{d} i}{\mathrm{d} t}+Ri
+\end{align*}
+donde $R$ es la resistencia del circuito e $i$ es la corriente. Suponga que medimos la corriente con varios valores de $t$ y obtenemos:
+\begin{table}[tbhp]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+$t$ & 1.00 & 1.01 & 1.02 & 1.03 & 1.04 \\
+\hline
+$i$ & 3.10 & 3.12 & 3.14 & 3.18 & 3.24 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+donde $t$ se mide en segundos, $i$ se da en amperes, la inductancia $L$ es una constante de $0.98$ Henries y la resistencia es de $0.142$ ohms. Aproxime el voltaje $\varepsilon(t)$ en los valores $t= 1.00$, $1.01$, $1.02$, $1.03$ y $1.04$
+
+Para poder estimar el valor del voltaje $\varepsilon(t)$ en los distintos instantes de tiempo, usando la fórmula diferencial de la Ley de
+Kirchoff, se requiere conocer la variación de la corriente i en función del tiempo. Como no conocemos esta función ni su
+derivada primero tenemos que utilizar un método numérico para hallar una aproximación a la derivada; y, posteriormente
+usar la fórmula para hallar el valor de $\varepsilon(t)$.
+
+Utilizando la ecuación de segundo orden de Taylor
+
+\begin{align}
+\label{eq1}
+i(t)=i(t_0)+i'(t_0)(t-t_0)+i''(t_0)\frac{(t-t_0)^2}{2}+i'''(\xi)\frac{(t-t_0)^3}{6}
+\end{align}
+
+con $t=t_0+h$ nos queda:
+\begin{align}
+\label{eq2}
+i(t_0+h)=i(t_0)+i'(t_0)h+i''(t_0)\frac{h^2}{2}+i'''(\xi)\frac{h^3}{6}
+\end{align}
+
+con $t=t_0+2h$ nos queda:
+\begin{align}
+\label{eq3}
+i(t_0+2h)=i(t_0)+i'(t_0)2h+i''(t_0)2h^2+i'''(\xi)\frac{4h^3}{3}
+\end{align}
+entonces si multiplico por 4 la ecuación \ref{eq2}, le resto la ecuación \ref{eq3}y opero algebraicamente obtengo
+\begin{align}
+\label{eq4}
+i'(t_0)=\frac{1}{2h}[4i(t_0+h)-i(t_0+2h)-3i(t_0)]+i'''(\xi)\frac{h^2}{3}
+\end{align}
+Esta última, la ecuacion \ref{eq4}, es la fórmula progresiva de 3 puntos y aproxima a la derivada de la función.\\
+Si reemplazamos en \ref{eq1} a $t_0$ por $t_0-h$ obtengo
+\begin{align}
+\label{eq5}
+i(t_0-h)=i(t_0)+i'(t_0)(-h)+i''(t_0)\frac{h^2}{2}+i'''(\xi_1)\frac{-h^3}{6}
+\end{align}
+Si ahora resto a \ref{eq2} la ecuación \ref{eq5} tengo como resultado la fórmula de aproximación a la derivada en el punto medio con tres puntos.
+\begin{align}
+\label{eq6}
+i'(t_0)=\frac{1}{2h}[i(t_0+h)-i(t_0-h)]+i'''(\xi)\frac{h^2}{3}
+\end{align}
+Para conseguir la formula de aproximación a la derivada de forma regresiva con tres puntos reemplazo en \ref{eq1} a $t_0$ por $t_0-2h$ y tengo
+\begin{align}
+\label{eq7}
+i(t_0-2h)=i(t_0)+i'(t_0)(-2h)+i''(t_0)2h^2+i'''(\xi)\frac{-4h^3}{3}
+\end{align}
+y a esta ecuación le tengo que restar 4 veces la ecuación \ref{eq5} y la fórmula regresiva me queda
+\begin{align}
+\label{eq8}
+i'(t_0)=\frac{1}{2h}[i(t_0-2h)-4i(t_0-h)+3i(t_0)]-i'''(\xi)\frac{h^2}{3}
+\end{align}
+
+Para la resolución del ejercicio se utilizo la formula de aproximación progresiva para el extremo izquierdo del intervalo y la fórmula regresiva para el extremo derecho. En los puntos intermedios se utilizo la aproximación de la derivada centrada en el punto medio. Se utilizó siempre tres puntos para el cálculo de la aproximación de la derivada para mantener la precisión de los valores de voltaje, siendo el orden del término de error $h^3$.
+
+En la tabla \ref{tab1} se muestras los resultados obtenidos de las derivadas y los valores de voltaje en los tiempos del ejercicio.
+
+
+%\begin{figure}[tbhp]
+%\centerline{\includegraphics[scale=0.35]{ej1}}
+%\caption{}
+%\label{figura1}
+%\end{figure}
+
+
+\begin{table}
+\begin{center}
+\label{tab1}
+ \begin{tabular}{|c|c|c|c|}
+ \hline 
+  t &i	& $\frac{di}{dt}$ & $\varepsilon(t)$\\
+  \hline 
+1.00 &3.10 & 2 &2.40020\\
+\hline 
+1.01 &3.12 & 2 &2.40304\\
+\hline 
+1.02 &3.14 & 3 &3.38588\\
+\hline 
+1.03 &3.18 & 5 &5.35156\\
+\hline 
+1.04 &3.24 & 7 &7.32008\\
+ \hline 
+
+ \end{tabular} \\
+ 
+\end{center}
+\caption{Resultados del ejercicio 9}
+\end{table}
+
+\section{Ejercicio 10}
+Aproxime el valor de la siguiente integral usando cuadratura de Gauss con $n=3$ (número de puntos de integración). Compare este resultado con el valor exacto de la integral y con aquél obtenido mediante la regla de Newton-Cotes que utiliza igual cantidad de puntos de integración.
+
+\begin{align*}
+\int_{0}^{\pi /4}e^{3x}sen (2x)dx
+\end{align*}
+
+
+Luego, resuelva la integral utilizando la función $[s]=simp\_comp(f,a,b,M)$ utilizando 5 pares de subintervalos. Realice los comentarios pertinentes acerca de la precisión de cada uno de los métodos utilizados.\\
+
+Para utilizar cuadratura gaussiana se debe hacer un cambio de variables ya que necesitamos que el intervalo de integración sea de -1 a 1. Para esto definimos $a=0$ y $b=\frac{\pi}{4}$ y definimos la variable $t$ como
+\begin{align*}
+t=\frac{2x-a-b}{b-a}
+\end{align*}
+y por ende reemplazando a y b por sus valores y operando, tenemos que:
+\begin{align*}
+x=\frac{(t+1)\pi}{8}
+\end{align*}
+al realizar el cambio de variables en la integral que queremos aproximar nos queda
+\begin{align*}
+\int_{0}^{\frac{\pi}{4}}e^\frac{3\pi(t+1)}{8}sen(\frac{(t+1)\pi}{4})\frac{\pi}{8}dx
+\end{align*}
+Si procedemos a aplicar el método de cuadratura gaussiana utilizando los coeficientes y los puntos en donde evaluar al función obtenemos
+\begin{align*}
+\int_{0}^{\frac{\pi}{4}}e^\frac{3\pi(t+1)}{8}sen(\frac{(t+1)\pi}{4})\frac{\pi}{8}dx \approx 0,5555555556*f(0,77459)+0,8888888889*f(0)+0,5555555556*f(-0,77459)
+\end{align*}
+\begin{align*}
+\approx 0,5555555556*(3,127341238)+0,8888888889*
+(0,9019573886)+0,5555555556*(0,09019134533)
+\end{align*}
+\begin{align*}
+\approx 2,589258003
+\end{align*}
+
+
+Utilizando Newton-Cotes para $n=2$ y 3 puntos tenemos que obtener un tercer punto en el intervalo $0$, $\pi/4$ pero como los subintervalos deben ser de igual tamaño este punto es el intermedio ($\pi/8$), entonces
+\begin{align*}
+\int_{0}^{\frac{\pi}{4}}e^{3x}sen(2x)dx \approx \frac{\pi}{3*8}[f(0)+f(\pi/8)+f(\pi/4)] \approx 2,593696403
+\end{align*}
+
+Utilizando el algoritmo \ref{alg1} (Simpson Compuesto) el cual recibe como parámetros los extremos de integración y el número de subintervalos que se deben crear, obtenemos como resultado que
+
+\begin{align*}
+\int_{0}^{\frac{\pi}{4}}e^{3x}sen(2x)dx \approx 2,588599828
+\end{align*}
+
+En este caso particular se puede calcular la integral de manera exacta utilizando integrales por parte dos veces y despejando la integral de interés para obtener el resultado.
+
+\begin{align*}
+\int_{0}^{\frac{\pi}{4}}e^{3x}sen(2x)dx = -\frac{e^{3x}}{2}cos(2x)+ \frac{3}{2}\int_{0}^{\frac{\pi}{4}}e^{3x}cos(2x)dx 
+\end{align*}
+que sale de hacer
+
+\begin{align*}
+u=e^{3x} \hspace{1cm} du=3e^{3x}dx \hspace{1cm}
+dv=sen(2x) \hspace{1cm} v=-\frac{1}{2}cos(2x)
+\end{align*}
+seguimos operando y hacemos de nuevo integral por partes
+\begin{align*}
+\int_{0}^{\frac{\pi}{4}}e^{3x}sen(2x)dx=-\frac{e^{3x}}{2}cos(2x)+\frac{3}{2}\begin{bmatrix} \frac{e^{3x}}{2}sen(2x)-\frac{3}{2}\int_{0}^{\frac{\pi}{4}}e^{3x}sen(2x)dx\end{bmatrix}
+\end{align*}
+que sale de hacer
+
+\begin{align*}
+u=e^{3x} \hspace{1cm} du=3e^{3x}dx \hspace{1cm}
+dv=cos(2x) \hspace{1cm} v=\frac{1}{2}sen(2x)
+\end{align*}
+ahora despejando la integral que queremos evaluar tenemos
+\begin{align*}
+\int_{0}^{\frac{\pi}{4}}e^{3x}sen(2x)dx = \frac{4}{13}
+\begin{bmatrix}
+-\frac{e^{3x}}{2}cos(2x)+3sen(2x)
+\end{bmatrix}
+^{\frac{\pi}{4}}_0 = \frac{3}{13}e^{\frac{3\pi}{4}}+\frac{2}{13}=2,588628633
+\end{align*}
+
+En la tabla \ref{tab2} se muestran los resultados obtenidos con cada método.
+
+\begin{table}
+\begin{center}
+\label{tab2}
+ \begin{tabular}{|l|c|l|}
+ \hline 
+  Método & Resultado & Error absoluto\\
+  \hline 
+	Cuadratura de Gauss & 2,589258003& 0,00062937\\	
+ \hline 
+ Newton-Cotes& 2,593696403 & 0,00506777\\	
+ \hline 
+ Simpson Compuesto& 2,588599828& 0,000028805\\	
+ \hline 
+ Analitico con Integrales por partes& 2,588628633 & 0\\	
+ \hline 
+
+ \end{tabular} \\
+ 
+\end{center}
+\caption{Resultados del ejercicio 10}
+\end{table}
+
+Como conclusión podemos decir que siempre que se pueda resolver la integral de forma analítica vamos a obtener el resultado exacto, pero muchas veces llegar al resultado resulta costo. Cuando es así, se debe recurrir a los métodos numéricos los cuales aproximan el resultado y como se puede ver en la tabla \ref{tab2} el error es pequeño. El peor caso es de Newton-Cotes con un error de orden $O(h^5)$ mientras que Simpson Compuesto es el mejor con un error de orden $O(h^4)$
+
+\nocite{*}
+\bibliographystyle{informe}
+\bibliography{informe}
+
+
+% anexo. cambia de doble a simple columna
+\onecolumn										
+\section*{Anexo}									% sección 'Anexo' sin numeración
+\renewcommand{\thesection}{\Alph{section}}	% las siguientes secciones con letras en vez de número
+\setcounter{section}{0}							% equivalente a la letra "A"
+
+\section{Apéndice}
+A continuación se muestran los códigos utilizados para el desarrollo de este trabajo práctico:
+
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=MatLab,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true
+  tabsize=3
+}
+\begin{algorithm}[tbhp]
+\begin{lstlisting}
+function s = simpcomp(a,b,M)
+    npts = 2*M + 1;
+    x = linspace(a,b,npts);
+    h = (b-a) / (2*M);
+    s0 = feval(@f,x(1)) + feval(@f,x(npts));
+    s1 = 0;
+    for i = 1 : M - 1
+        s1 = s1 + feval(@f,x(2*i+1));
+    end
+    s2 = 0;
+    for i = 1 : M
+        s2 = s2 + feval(@f,x(2*i));
+    end
+    s = h/3 * (s0 + 2*s1 + 4*s2);
+end
+\end{lstlisting}
+\caption{Simpson Compuesto}
+\label{alg1}
+\end{algorithm}
+
+\begin{algorithm}[tbhp]
+ \begin{lstlisting}
+ function [y]=f(x)
+    y=(exp(x*3))*sin(2*x);
+end
+ \end{lstlisting}
+\caption{Función a evaluar}
+\label{alg2}
+\end{algorithm} 
+ 
+
+
+\end{document}

@@ -1,0 +1,651 @@
+\documentclass[conference,a4paper,10pt,oneside,final]{informe}
+\usepackage[latin1]{inputenc}   			% caracteres especiales (acentos, eñes)
+\usepackage[spanish]{babel}     			% varias definiciones para el español
+\usepackage{graphicx}           			% inserción de graficos
+\usepackage{mathtools}          			% fórmulas matemáticas
+\usepackage{hyperref}					% hipervínculos
+\usepackage{listings}					% para formatear el código fuente
+\usepackage[usenames,dvipsnames]{color}	% color
+\usepackage[table]{xcolor}				% color en tablas
+\usepackage{color}
+\usepackage{setspace}
+\usepackage[spanish]{algorithm2e}
+
+\renewcommand{\thetable}{\arabic{table}}
+\definecolor{light-gray}{gray}{0.75}
+
+\begin{document}
+
+\onecolumn
+\title{Informe III:\\
+       Trabajo Práctico 5}
+
+\author{Edgardo Cipolatti\\
+\textit{edgardocipolatti@hotmail.com}}
+
+\markboth{CÁLCULO NUMÉRICO - AÑO 2014}{}
+
+\maketitle
+	
+\section{Ejercicio 7}
+
+
+\begin{enumerate}
+\item Modifique la función desarrollada en el ejercicio 6.b) de manera que permita computar los
+coeficientes del trazador cubico sujeto. Se debe preveer el ingreso de los valores de la derivada
+de la función en los extremos del intervalo de interpolación.
+\item 
+Encuentre el trazador cubico sujeto S(x) definido en el intervalo $[1; 3]$ tal que\\
+
+
+\begin{center}$S(x)=$ 
+\(\left \{ 
+\begin{matrix}
+S_{0}(x) = a_{0}+b_{0}(x-1)+c_{0}(x-1)^{2}+d_{0}(x-1)^{3}, $ si $  1 \leq x \leq 2\\
+S_{1}(x) = a_{1}+b_{1}(x-2)+c_{1}(x-2)^{2}+d_{1}(x-2)^{3}, $ si $  2 \leq x \leq 3
+\end{matrix}
+\right .\
+\)
+\end{center}
+
+\vspace{0.3cm}
+siendo $f(1)=0,$ $f(2)=4,$ $f(3)=\frac{22}{3},$ y asumiendo que $f^{'}(1)=f^{'}(3)=3$. Utilice la función $[a,b,c,d]=cubic-spline-clamped(x,f,df)$ desarrollada en el inciso anterior.\\
+
+\item Se quiere determinar la trayectoria plana seguida por un brazo robot industrial (idealizado por un punto material) durante un ciclo de trabajo. El brazo robot debe satisfacer las
+siguientes restricciones: se debe encontrar en reposo en el punto $(0; 0)$ en el instantes inicial.
+Luego de 1s se debe encontrar en el punto $(1; 2)$, 1s después debe alcanzar el punto $(4; 4)$
+y detenerse all, para recomenzar inmediatamente su movimiento y alcanzar, luego de otro
+segundo mas el punto $(3; 1)$ para finalmente retornar al origen luego de otro segundo mas,
+donde quedara detenido para repetir el ciclo de trabajo.
+Encuentre el trazador cubico sujeto correspondiente utilizando el código desarrollado en el
+primer inciso y luego grafíque en el plano la trayectoria encontrada.
+
+%%QUEDE ACÄAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+\end{enumerate}
+
+\subsection{Ejercicio 7a}
+\textbf{Interpolante de Trazador Cúbico}\\
+Dada una función \(f\) definida en \([a,b]\) y un conjunto de nodos \(a=x_0,x_1,\ldots,x_n=b\), un \textbf{interpolante de trazador cúbico}  \(S\) para \(f\) es una función que cumple con las siguientes condiciones:\\
+
+\begin{enumerate}
+\item \(S(x)\) es un polinomio cúbico denotado \(S_j(x)\) en el subintervalo \([x_j,x_{j+1}]\) para cada \(j=0,1,\ldots,n-1\);
+\item \(S(x_j) = f(x_j)\) para cada \(j=0,1,\ldots,n\);
+\item \(S_{j+1}(x_{j+1}) = S_j(x_{j+1})\) para cada \(j=0,1,\ldots,n-2\);
+\item \(S'_{j+1}(x_{j+1}) = S'_j(x_{j+1})\) para cada \(j=0,1,\ldots,n-2\);
+\item \(S''_{j+1}(x_{j+1}) = S''_j(x_{j+1})\) para cada \(j=0,1,\ldots,n-2\);
+\item Una de las siguientes condiciones de frontera se satisface:
+\begin{itemize}
+\item \(S''(x_0) = S''(x_n) = 0\) (\textbf{frontera libre o natural})
+\item \(S''(x_0)=f(x_0)\) y \(S''(x_n)=f(x_n)\) (\textbf{frontera
+sujeta})
+\end{itemize}
+\end{enumerate}
+\vspace{0.3cm}
+
+\textbf{Deducción del Teorema 3.12}
+
+Si queremos construir el interpolante del trazador cúbico de una determinada función \(f\) aplicamos las condiciones de la definición a los polinomios cúbicos:
+
+\begin{center}
+\(S_j(x) = a_j+b_j(x-x_j)+c_j(x-x_j)^2+d_j(x-x_j)^3\)
+\end{center}
+
+Cuando \(x = x_j\) se tiene que \(S_j(x_j) = a_j = f(x_j)\). Si además se define \(a_n=f(x_n)\) y se aplica la condición \textbf{a.} a la expresión anterior se obtiene :
+
+\begin{equation}
+a_{j+1} = S_{j+1}(x_{j+1})=S_j(x_{j+1}) = a_j + b_jh_j + c_jh_j^2 + d_jh_j^3 \quad  j = 0,1,\ldots,n-1
+\end{equation}
+
+con \(h_j = x_{j+1} - x_j\).
+
+\vspace{0.3cm}
+
+Entonces si también $a_{n}=f(x_{n})$,
+
+La primera derivada del interpolante del trazador cúbico, S'(x) es:
+\vspace{0.3cm}
+$S_{j}^{'} = \frac{d S_{j}(x)}{dx} = b_{j} + 2 c_{j}(x - x_{j}) + 3 d_{j} (x - x_{j})^{2} $
+\vspace{0.3cm}
+Al hacer $x=x_{j} \Rightarrow S_{j}^{'}(x_{j}) = b_{j}$ y habiendo definido $b_{n}=S^{'}(X_{n})$ para cada  j = 0,1,\ldots,n-1. Al aplicar la condición d. Se tiene:
+\vspace{0.3cm}
+$b_{j+1} = S_{j+1}^{'}(x + 1) = S_{j}^{'}(x+1)= b_{j} + 2 c_{j}(x_{j+1}-x_{j}) + 3d_{j} (x_{j+1}-x_{j})^{2}$
+
+Entonces, \begin{equation} b_{j+1}= b_{j} + 2c_{j}h_{j} + 3d_{j}h_{j}^2 \end{equation} para j=0,1,\ldots,n-1
+
+La segunda derivada $S^{''}(x)$ es:
+\vspace{0.3cm}
+$\frac{d S_{j}^{'}(x)}{dx} = 2 c_{j} + 6d_{j}(x - x_{j}) = S_{j}^{''}(x)$
+
+Cuando $x = x_{j} \Rightarrow S_{j}^{''}(x_{j}) = 2c_{j} \Rightarrow c_{j} = \frac{S_{j}^{''}(x)}{2} $\\
+
+Luego al aplicar la condición c.
+
+$c_{j+1}= S_{j+1}^{''}(x+1) = S_{j}^{''}(x+1) = c_{j} + 3d_{j}(x_{j+1} - x_{j})$. Si $c_{n}= \frac{S^{''}(x_{n})}{2} \Rightarrow $ \begin{equation} c_{j+1} = c_{j} + 3d_{j}h_{j} \end{equation} para j = 0,1,\ldots,n-1.
+Al despejar $d_{j}$  en (3) y sustituir en (1) se obtiene
+
+$c_{j+1}= c_{j} + 3d_{j}h_{j} \Rightarrow$ \begin{equation} d_{j}= \frac{c_{j+1} - c_{j}}{3h_{j}} \end{equation}
+
+$a_{j+1} = a_{j} + b_{j}h_{j} + c_{j}h_{j}^{2} + d_{j}h_{j}^{3} $ Usando (4) $\Rightarrow a_{j} + b_{j}h_{j} + c_{j}h_{j}^{2} + \frac{c_{j+1} - c_{j}}{3h_{j}} h_{j}^{3} \Rightarrow $ \begin{equation} a_{j+1} = a_{j} + b_{j}h_{j} + c_{j}h_{j}^{2}  + \frac  {c_{j+1}h_{j}^{2}}{3} - \frac  {c_{j}h_{j}^{2}}{3} \end{equation}
+\begin{center}
+$= a_{j+1} = a_{j} + b_{j}h_{j} + \frac {h_{j}^{2}}{3} (2c_{j} + c_{j+1})$
+
+\end{center}
+Reemplazando (4) en (2):
+
+$b_{j+1}=b_{j} + 2c_{j}h_{j} + 3d_{j}h_{j}^{2} = b_{j} + 2c_{j}h_{j} + \frac{3(c_{j+1}-_{j})h_{j}^2}{3h_{j}} \Rightarrow b_{j+1} = b_{j} + 2c_{j}h_{j} + c_{j+1}h_{j} - c_{j}h_{j} = $ \begin{equation} b_{j} + h_{j} (c_{j} + c_{j+1}) \end{equation}
+
+
+Reordenando (5):
+
+\begin{center}
+$b_{j}h_{j} = a_{j+1} - a_{j} - \frac{h_{j}^{2}}{3} (2c_{j} + c_{j+1}) $
+\end{center}
+
+\begin{equation} b_{j} = \frac{a_{j+1} - a_{j}}{h_{j}} - \frac{h_{j}*(2c_{j}+c_{j+1})}{3} \end{equation}
+
+
+reduciendo en 1 el indice en (7)
+\begin{equation} b_{j-1} = \frac{a_{j}-a_{j-1}}{h_{j-1}} - \frac{- h_{j-1}*(2c_{j-1}+c_{j})}{3} \end{equation}
+
+reduciendo en 1 el indice en (6)\\
+\vspace{0.3cm}
+$b_{j} = b_{j-1}+ h_{j-1}*(c_{j-1}+c_{j}) $\\
+
+Reemplazando en la anterior con (8) y operando algebraicamente\\
+
+\vspace{0.2cm}
+$b_{j} = \frac{a_{j}-a_{j-1}}{h_{j-1}} - \frac{2h_{j-1}c_{j-1}}{3} - \frac{h_{j-1}c_{j}}{3} + h_{j-1}c_{j-1} + h_{j-1}c_{j}$\\
+
+\vspace{0.2cm}
+$ b_{j} = \frac{a_{j}-a_{j-1}}{h_{j-1}} + \frac{h_{j-1}c_{j-1}}{3} + \frac{2h_{j-1}c_{j}}{3}$\\
+
+
+Igualando la anterior a (7) y operando algebraicamente\\
+\vspace{0.2cm}
+
+$b_{j} = \frac{a_{j}-a_{j-1}}{h_{j-1}} + \frac{h_{j-1}c_{j-1}}{3} + \frac{2h_{j-1}c_{j}}{3} = \frac{a_{j+1}-a_{j}}{h_{j}} - \frac{h_{j}*(2c_{j}+c_{j+1})}{3} =$\\
+\vspace{0.2cm}
+
+$\frac{3*(a_{j}-a_{j-1})}{h_{j-1}} + h_{j-1}c_{j-1} + 2h_{j-1}c_{j} = \frac{3(a_{j+1}- a_{j})}{h_{j}} -2h_{j}c_{j} - h_{j}c_{j+1} =$\\
+\vspace{0.2cm}
+
+$h_{j-1}c_{j-1} +2h_{j-1}c_{j-1} + 2h_{j}c_{j} + h_{j}c_{j+1} = \frac{3*(a_{j+1}-a_{j})}{h_{j}} - \frac{3*(a_{j}-a_{j-1})}{h_{j-1}}=$\\
+\vspace{0.2cm}
+
+\begin{equation}h_{j-1}c_{j-1} +2(h_{j-1} + h_{j})c_{j} + h_{j}c_{j+1} = \frac{3*(a_{j+1}-a_{j})}{h_{j}} - \frac{3*(a_{j}-a_{j-1})}{h_{j-1}} \end{equation}
+
+La expresión (10), para $ j = 1,2,...,n-1$ contiene solo $\left \{ c_{j} \right \}_{J=0}^{n}$ como incógnitas, ya que los valores de $\left \{ h_{j} \right \}_{J=0}^{n-1}$ y de $\left \{ a_{j} \right \}_{J=0}^{n}$ están dados por el espaciado en los nodos $\left \{ x_{j} \right \}_{J=0}^{n}$ y los valores de f en éstos.\\
+
+Sabiendo los $c_{j}$ se pueden hallar los $b_{j}$ y los $d_{j}$ partiendo de las expresiones (7) y (4).
+
+Resumiendo:\\
+\begin{center}
+\(\left \{ 
+\begin{matrix}
+a_{j} = S_{j}(x_{j}) = f(x_{j}) \\
+
+b_{j} = \frac{a_{j+1}-a_{j}}{h_{j}} - \frac{h_{j}(2c_{j}+c_{j+1})}{3}\\
+
+c_{j} \rightarrow $Sistema de ecuaciones originado en (10)$\\
+
+d_{j} = \frac{c_{j+1}-c_{j}}{3h_{j}}
+\end{matrix}
+\right .\
+\)
+\end{center}
+
+Se plantea el interrogante de si se pueden determinar los $c_{j}$ por medio del sistema de ecuaciones dado en (10). El siguiente teorema indica que esto es posible cuando se establece la condición $f(i)$ de la definición de trazador cúbico.
+\vspace{0.3cm}
+
+\textbf{Teorema 3.12:} Si $f$ está definida en $a = x_{0} < x_{1} <\ldots<x_{n}=b$ y es diferenciable en a y b, entonces $f$ tendrá un interpolante único de trazador sujeto en los nodos $x_{0}, x_{1},...,x_{n}$; es decir, un interpolante de trazador que cumple con las condiciones de frontera $S^{'}(a)=f^{'}(a)$ y $S^{'}(b)=f^{'}(b)$.\\
+
+
+\textbf{Demostración:} Se tiene que
+$S_{j}^{'}(x)=b_{j} + 2c_{j}(x-x_{j})+3d_{j}(x-x_{j})^{2}$
+luego en $x=x_{j}4$ tenemos $S_{j}^{'}(x)=b_{j}$
+
+en $x_{0}$ se tiene que $f^{'}(a)=S^{'}(a)=S^{'}(x_{0})=b_{0}$.\\
+De la expresión (7) se tiene:\\
+
+\vspace{0.2cm}
+$b_{0}=\frac{a_{1}-a_{0}}{h_{0}}-\frac{h_{0}(2c_{0}+c_{1})}{3}$\\
+
+
+$\Rightarrow f^{'}(a)=b_{0}=\frac{a_{1}-a_{0}}{h_{0}}-\frac{h_{0}(2c_{0}+c_{1})}{3} $
+$\Rightarrow 3f^{'}(a)=\frac{3(a_{1}-a_{0})}{h_{0}}-2h_{0}c_{1}$\\ \begin{equation} \Rightarrow 2h_{0}c_{0} + h_{0}c_{1} = \frac{3(a_{1}-a_{0})}{h_{0}}-3f^{'}(a)
+\end{equation}\\
+
+Por otro lado, a partir de la expresión (6) en$x=b$ se tiene:\\
+\vspace{0.2cm}
+$f^{'}(b)=b_{n}= b_{n-1}+ h_{n-1}(c_{n-1}+c_{n}).$ Luego, a partir de la expresión (9) con $j=n$ se tiene\\
+$b_{n-1}=\frac{a_{n}-a_{n-1}}{h_{n-1}} - \frac{h_{n-1}(2c_{n-1}+c_{n})}{3}$\\
+
+$\Rightarrow f^{'}(b)=\frac{a_{n}-a_{n-1}}{h_{n-1}} - \frac{2h_{n-1}c_{n-1}}{3}-\frac{h_{n-1}c_{n}}{3} + h_{n-1}c_{n-1}+h_{n-1}c_{n}$\\
+
+$\Rightarrow f^{'}(b)=\frac{a_{n}-a_{n-1}}{h_{n-1}} + \frac{h_{n-1}c_{n-1}}{3}+\frac{2h_{n-1}c_{n}}{3}$\\
+
+$\Rightarrow f^{'}(b)=\frac{a_{n}-a_{n-1}}{h_{n-1}} -\frac{h_{n-1}c_{n-1}}{3} + \frac {2h_{n-1}c_{n}}{3}$\\
+
+$\Rightarrow 3f^{'}(b) = \frac{3(a_{n}-a_{n-1})}{h_{n-1}} + h_{n-1}c_{n-1} + 2h_{n-1}c_{n}$\\
+
+
+\begin{equation}\Rightarrow h_{n-1}c_{n-1} + 2h_{n-1}c_{n} = 3f^{'}(b) - \frac{a_{n}-a_{n-1}}{h_{n-1}}\end{equation}\\
+
+Combinando las expresiones (9), (10) y (11) se obtiene el sistema lineal $Ax =b$, donde\\
+
+\begin{figure}%[tbhp]
+\centerline{\includegraphics[scale=0.50]{Matrices}}
+\caption{}
+\label{Figura1}
+\end{figure}
+
+
+La matriz A es E.D.D., y por lo tanto cumple con la condición del teorema 6.19. En consecuencia el sistema tiene única solución $c_{0}, c_{1},...,c_{n}.$
+
+
+\subsection{Ejercicio 7b}
+Utilizamos el algoritmo \ref{alg1} para obtener los coeficientes $a,b,c$ y $d$ de las ecuaciones de trazador cúbico sujeto. Los mismos se obtienen de introducir los valores de las condiciones iniciales. En el vector de $x$ ponemos los puntos donde tenemos evaluada la función (dentro del intervalo). En $f$ ponemos la función evaluada en los $x$ anteriores y en $df$ ponemos las derivadas en los extremos del vector.Lo hacemos así ya que son las condiciones de borde a considerar y completamos el vector con cualquier valor ya que el algoritmo no los utiliza.
+
+Al utilizar el algoritmo \ref{alg1} obtenemos los siguientes resultados:\\
+\begin{center}
+\(
+\begin{matrix}
+a_{0}=0 &\hspace{1cm} b_{0}=3 &\hspace{1cm} c_{0}=2  &\hspace{1cm} d_{0}=-1 \\
+a_{1}=4 &\hspace{1cm} b_{1}=4 &\hspace{1cm} c_{1}=-1 &\hspace{1cm} d_{1}=1/3 
+\end{matrix}
+\)
+\end{center}
+
+Por ende en las funciones resultantes son:\\
+
+\begin{center}$S(x)=$ 
+\(\left \{ 
+\begin{matrix}
+S_{0}(x) = 0+3(x-1)+2(x-1)^{2}-(x-1)^{3}, $ si $  1 \leq x \leq 2\\
+S_{1}(x) = 4+4(x-2)-(x-2)^{2}+\frac{(x-2)^{3}}{3}, $ si $  2 \leq x \leq 3
+\end{matrix}
+\right .\
+\)
+\end{center}
+
+
+\begin{figure}%[tbhp]
+\centerline{\includegraphics[scale=0.50]{7b}}
+\caption{Spline cúbico sujeto}
+\label{Figura2}
+\end{figure}
+
+\subsection{Ejercicio 7c}
+
+Primero Ordenamos los datos en una tabla de tiempo[seg], x e y:\\
+\begin{center}
+ \begin{tabular}{|c|c|c|c|c|c|}
+ \hline 
+   Tiempo [seg] & 0 & 1 & 2 & 3 & 4 \\ 
+ \hline 
+ x & 0 & 1 & 4 & 3 & 0 \\ 
+ \hline 
+ y & 0 & 2 & 4 & 1 & 0 \\ 
+ \hline
+ \end{tabular}
+\end{center}
+ 
+Se nos da como dato que la velocidad es igual a cero en los puntos (0,0) y (3,1), es decir, que $\frac{dx}{dt}=0$ y $\frac{dy}{dt}=0$  en ambos puntos. Se procede a realizar una interpolación para y, y otra para x. Además conocer las derivadas nos permite desarmar el problema en dos curvas de trazadores cúbicos sujetos. Siendo finalmente los mismos $S_{0},S_{1},S_{2},S_{3}$.\\
+Los polinomios para los trazadores son:
+\vspace{0,5cm}
+
+\(
+\begin{matrix}
+ x_{0}(t) =a_{0}+b_{0}*(t-0)+c_{0}*(t-0)^{2}+d_{0}*(t-0)^{3}\\
+ x_{1}(t) =a_{1}+b_{1}*(t-1)+c_{1}*(t-1)^{2}+d_{1}*(t-1)^{3}\\
+ y_{0}(t) =r_{0}+s_{0}*(t-0)+t_{0}*(t-0)^{2}+u_{0}*(t-0)^{3}\\
+ y_{1}(t) =r_{1}+s_{1}*(t-1)+t_{1}*(t-1)^{2}+u_{1}*(t-1)^{3}\\
+ x_{2}(t) =a_{2}+b_{2}*(t-2)+c_{2}*(t-2)^{2}+d_{2}*(t-2)^{3}\\
+ x_{3}(t) =a_{3}+b_{3}*(t-3)+c_{3}*(t-3)^{2}+d_{3}*(t-3)^{3}\\
+ y_{2}(t) =r_{2}+s_{2}*(t-2)+t_{2}*(t-2)^{2}+u_{2}*(t-2)^{3}\\
+ y_{3}(t) =r_{3}+s_{3}*(t-3)+t_{3}*(t-3)^{2}+u_{3}*(t-3)^{3}  
+ \end{matrix}
+\)
+\vspace{0,5cm}
+
+Aplicando el algoritmo \ref{alg1}, en intervalos de tiempo entre [0,2] y entre [2,4] para los valores de x e y presentados en la tabla anterior. Se obtienen los coeficientes a,b,c,d del polinomio interpolante. Se los presenta a continuación:
+
+\vspace{0,5cm}
+
+\(
+\begin{matrix}
+ x_{0}(t) =0+0*(t-0)+0*(t-0)^{2}+1*(t-0)^{3}\\
+ x_{1}(t) =1+3*(t-1)+3*(t-1)^{2}-3*(t-1)^{3}\\
+ y_{0}(t) =0+0*(t-0)+3*(t-0)^{2}-1*(t-0)^{3}\\
+ y_{1}(t) =2+3*(t-1)+0*(t-1)^{2}-1*(t-1)^{3}\\
+ x_{2}(t) =4+0*(t-2)+0*(t-2)^{2}-1*(t-2)^{3}\\
+ x_{3}(t) =3-3*(t-3)-3*(t-3)^{2}+3*(t-3)^{3}\\
+ y_{2}(t) =4+0*(t-2)-6*(t-2)^{2}+3*(t-2)^{3}\\
+ y_{3}(t) =1-3*(t-3)+3*(t-3)^{2}-1*(t-3)^{3}
+ \end{matrix}
+\)
+\vspace{0,5cm}
+
+
+Luego se construyeron los algoritmos \ref{alg2}, \ref{alg3},  \ref{alg4}, \ref{alg5}, \ref{alg6}, \ref{alg7}, \ref{alg8} y  \ref{alg9} que representan a las polinomios antes listados. Utilizando estos algoritmos y evaluándolos en los intervalos [0,1],[1,2],[2,3] y [3,4] para cada caso, se procedió a graficar x vs y en forma logarítmica; se muestra dicha gráfica a continuación:
+
+\begin{figure}[tbhp]
+\centerline{\includegraphics[scale=0.4]{7C}}
+\caption{Gráfica logaritmica de x(t) vs y(t)}
+\label{fig3}
+\end{figure}
+
+
+\section{Ejercicio 9}
+En el siguiente conjunto de datos, presentados al Senate Antitrust Subcomimittee de Estados Unidos, muestra las características compartivas de choque-supervivencia de automóviles de varios tipos. Obtenga la recta de mínimos cuadrados que aproxima estos datos. (tabla contiene el porcentaje de vehículos accidentados en los cuales la lesión más seria fue fatal o grave.\\
+
+
+
+\(
+\begin{tabular}{| l | c | c | }
+\hline
+Tipo & Peso Promedio & ocurrencia\\
+\hline
+regular de lujo, de fabricacion nacional & 4800lb  & 3.1\\
+Regular intermedio, de fabricacion nacional & 3700lb & 4.0\\
+Economico regular, de fabricacion nacional & 3400lb & 5.2\\
+Compacto de fabricacion nacional & 2800lb & 6.4\\
+Compacto de fabricacion extranjera & 1900lb & 9.6\\
+\hline
+\end{tabular}
+\)\\
+
+Realizando la tabla para el posterior cálculo de los coeficientes de los mínimos cuadrados
+
+\(
+\begin{tabular}{| c | c | c | c | c |}
+\hline
+%x_{i} & y_{i} & x_{i}^{2} & x_{i}*y_{i} & %P(x_{i})= \\
+\hline
+
+\hline
+\end{tabular}
+\)
+
+\vspace{0,75cm}
+
+El método de \textbf{mínimos cuadrados} para la resolución de este problema requiere determinar la mejor línea aproximante, cuando el error es la suma de los cuadrados de las diferencias entre los valores de $y$ en la línea aproximante y los valores de $y$ dados. Dada una colección de datos ${(x_i,y_i}_{i=1}^m$ el método implica minimizar el error total, según:
+
+\(
+E = E_2(a_0,a_1) = \sum\limits_{i=1}^m [y_i-(a_1x_i+a_0)]^2
+\)
+
+Por tanto, hay que encontrar los valores de las constantes $a_0$ y $a_1$ que minimicen el error. Para que haya un mínimo debemos tener:\\
+
+\(
+0 = \frac{\partial}{\partial a_0} \sum\limits_{i=1}^m [y_i-(a_1x_i+a_0)]^2 = 2 \sum\limits_{i=1}^m (y_i - a_1x_i - a_0)(-1)\\
+0 = \frac{\partial}{\partial a_1} \sum\limits_{i=1}^m [y_i-(a_1x_i+a_0)]^2 = 2 \sum\limits_{i=1}^m (y_i - a_1x_i - a_0)(-x_i)
+\)
+
+Estas ecuaciones se simplifican en las ecuaciones normales:\\
+
+\(
+a_0\cdot m + a_1 \sum\limits_{i=1}^m x_i = \sum\limits_{i=1}^m y_i \text{ y } a_0 \sum\limits_{i=1}^m x_i + a_1 \sum\limits_{i=1}^m x_i^2 = \sum\limits_{i=1}^m x_iy_i
+\)
+
+Operando algebraicamente estas ecuaciones se puede derivar en las expresiones finales para las constantes:\\
+
+\(
+a_0 = \frac{\sum\limits_{i=1}^m x_i^2 \sum\limits_{i=1}^m y_i - \sum\limits_{i=1}^m x_iy_i \sum\limits_{i=1}^m x_i}{m \left(\sum\limits_{i=1}^m x_i^2\right) - \left(\sum\limits_{i=1}^m x_i\right)^2}\\
+a_1 = \frac{m\sum\limits_{i=1}^m x_iy_i - \sum\limits_{i=1}^m x_i \sum\limits_{i=1}^m y_i }{m \left(\sum\limits_{i=1}^m x_i^2\right) - \left(\sum\limits_{i=1}^m x_i\right)^2}
+\)\\
+
+A partir de estas expresiones se elaboró el ALGORITMO ''least\_squares'' ACA VA EL ALGORITMO!!!! el cual recibe como parámetros el conjunto de datos ${(x_i,y_i}_{i=1}^5$ (ver tabla) ,,,,,,,,,,,CCOMPLETAR
+\nocite{*}
+\bibliographystyle{informe}
+\bibliography{informe}
+
+
+% anexo. cambia de doble a simple columna
+\onecolumn										
+\section*{Anexo}									% sección 'Anexo' sin numeración
+\renewcommand{\thesection}{\Alph{section}}	% las siguientes secciones con letras en vez de número
+\setcounter{section}{0}							% equivalente a la letra "A"
+
+\section{Apéndice}
+A continuación se muestran los códigos utilizados para el desarrollo de este trabajo práctico:
+
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Scilab,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true
+  tabsize=3
+}
+\begin{algorithm}[tbhp]
+\begin{lstlisting}
+function[a,b,c,d]=cubic_spline_clamped(x,f,df)
+    n= length(x);
+    h= x(2:n)-x(1:n-1); //Separacion entre dos nodos
+    A = zeros(n,n);
+    rhs = zeros(n,n); //Es el vector solución, vendria a ser el b de Ax=b
+    A(1,1) = 2*h(1);
+    A(1,2) = h(1);
+    A(n,n-1)=h(n-1);
+    A(n,n) = 2*h(n-1);
+    rhs(1)=3*(f(2) - f(1)) / h(1) - 3* df(1);
+    rhs(n)=3* df(n) - 3*(f(n) - f(n-1)) / h(n-1);
+    
+    for (i=2:n-1);
+        A(i,i-1) = h(i-1);
+        A(i,i) = 2*(h(i) + h(i-1));
+        A(i,i+1) = h(i);
+        rhs(i) = 3*(f(i+1) - f(i)) / h(i) -3*(f(i)-f(i-1))/h(i-1);
+    end 
+    c = gauss(A,rhs);
+    b = (f(2:n)-f(1:n-1))./h(1:n-1)-(2*c(1:n-1)+c(2:n)).*h(1:n-1)/3;
+    d = (c(2:n)-c(1:n-1))./(3*h(1:n-1));
+    a = f(1:n-1);
+    c = c(1:n-1);
+endfunction
+\end{lstlisting}
+\caption{Make Matrix}
+\label{alg1}
+\end{algorithm}
+
+\begin{algorithm}[tbhp]
+ \begin{lstlisting}
+function[r]=x0(t)  
+    r=1*(t^3);   
+endfunction
+ \end{lstlisting}
+\caption{Evalua $x_{0}$ en $t$}
+\label{alg2}
+\end{algorithm} 
+ 
+\begin{algorithm}[tbhp]
+ \begin{lstlisting}
+function[r]=x1(t) 
+    r=1+3*(t-1)+3*((t-1)^2)-3*((t-1)^3); 
+endfunction
+ \end{lstlisting}
+\caption{Evalua $x_{1}$ en $t$}
+\label{alg3}
+\end{algorithm} 
+
+\begin{algorithm}[tbhp]
+ \begin{lstlisting}
+function[r]=y0(t)
+    r=3*(t^2)-1*(t^3);    
+endfunction
+ \end{lstlisting}
+\caption{Evalua $y_{0}$ en $t$}
+\label{alg4}
+\end{algorithm}
+
+\begin{algorithm}[tbhp]
+ \begin{lstlisting}
+function[r]=y1(t)
+    r=2+3*(t-1)+0*((t-1)^2)-1*((t-1)^3);
+endfunction
+ \end{lstlisting}
+\caption{Evalua $y_{1}$ en $t$}
+\label{alg5}
+\end{algorithm}
+
+\begin{algorithm}[tbhp]
+ \begin{lstlisting}
+function[r]=x2(t)
+    r=4+0*(t-2)+0*((t-2)^2)-1*((t-2)^3);
+endfunction
+ \end{lstlisting}
+\caption{Evalua $x_{2}$ en $t$}
+\label{alg6}
+\end{algorithm}
+
+\begin{algorithm}[tbhp]
+ \begin{lstlisting}
+function[r]=x3(t)    
+    r=3-3*(t-3)-3*((t-3)^2)+3*((t-3)^3);    
+endfunction
+ \end{lstlisting}
+\caption{Evalua $x_{3}$ en $t$}
+\label{alg7}
+\end{algorithm}
+
+\begin{algorithm}[tbhp]
+ \begin{lstlisting}
+function[r]=y2(t)    
+    r=4+0*(t-2)-6*((t-2)^2)+3*((t-2)^3);    
+endfunction
+ \end{lstlisting}
+\caption{Evalua $y_{2}$ en $t$}
+\label{alg8}
+\end{algorithm}
+
+\begin{algorithm}[tbhp]
+ \begin{lstlisting}
+function[r]=y3(t)    
+    r=1-3*(t-3)+3*((t-3)^2)-1*((t-3)^3);    
+endfunction
+ \end{lstlisting}
+\caption{evalua $y_{3}$ en $t$}
+\label{alg9}
+\end{algorithm}
+
+\begin{algorithm}[tbhp]
+ \begin{lstlisting}
+ 
+ function [] = plot_spline(x1,y1,x2,y2,x3,y3,x4,y4)
+    scf(5);
+    clf(5);
+
+    plot2d("nn",x1,y1,style=3);
+    p1 = get("hdl");
+    p1.children.thickness = 3;
+    plot2d("nn",x2,y2,style=4);
+    p2 = get("hdl");
+    p2.children.thickness = 3;
+    plot2d("nn",x3,y3,style=5);
+    p3 = get("hdl");
+    p3.children.thickness = 3;
+    plot2d("nn",x4,y4,style=6);
+    p4 = get("hdl");
+    p4.children.thickness = 3;
+    legend(["S0(x)";"S1(x)";"S2(x)";"S3(x)"], with_box=%f, opt="?","in_lower_right");
+
+    xtitle("Splines Cúbicos", "x", "S(x)");     // titulo, eje x, eje y
+    set(gca(), "grid", [-1,1]);
+endfunction
+ 
+  \end{lstlisting}
+\caption{plotear splines}
+\label{alg9}
+\end{algorithm}
+\end{document}
+ 
+
+\begin{algorithm}[tbhp]
+ \begin{lstlisting}
+ function [a0,a1,E] = least_sqares(x,y)
+    [fx,cx] = size(x);
+    [fy,cy] = size(y);
+    nx = 0; // longitud de x
+    ny = 0; // longitud de y
+    m = 0;
+    a0 = 0;
+    a1 = 0;
+    
+    // Determina la longitud del vector x. También lo convierte a vector fila
+    if fx == 1 then
+        nx = cx;
+        x = x';
+    else
+        nx = fx;
+    end
+    
+    // Determina la longitud del vector y. También lo convierte a vector fila
+    if fy == 1 then
+        ny = cy;
+        y = y';
+    else
+        ny = fy;
+    end
+    
+    if nx ~= ny then
+        disp("Dimensiones de los datos de entrada inconsistentes.");
+        return;
+    else
+        m = nx;
+    end
+    
+    a0 = (sum(x.^2)*sum(y) - sum(x.*y)*sum(x)) / (m * (sum(x.^2)) - (sum(x))^2);
+    a1 = (m*sum(x.*y) - sum(x)*sum(y)) / (m*sum(x.^2) - (sum(x)^2));
+    
+    P = zeros(m,1);
+    P(1:m) = a0 + a1 * x(1:m);
+    E = sum((y(1:m) - P(1:m))^2);
+    
+endfunction
+ 
+ 
+\end{lstlisting}
+\caption{mínimos cuadrados}
+\label{alg9}
+\end{algorithm}
+\end{document}
+
+
+\begin{algorithm}[tbhp]
+ \begin{lstlisting}
+ function [] = plot_ls(x,y,a0,a1)
+    scf(5);
+    clf(5);
+
+    P = a0 + a1 * x;
+    
+    plot(x,y,".");
+    
+    plot2d("nn",x,P,style=5);
+    p1 = get("hdl");
+    p1.children.thickness = 3;
+   
+    
+    xtitle("Mínimos Cuadrados", "Peso Promedio (x)", "% de Ocurrencia (P(x))");     // titulo, eje x, eje y
+    set(gca(), "grid", [-1,1]);
+endfunction
+ 
+ \end{lstlisting}
+\caption{mínimos cuadrados}
+\label{alg9}
+\end{algorithm}
+\end{document}

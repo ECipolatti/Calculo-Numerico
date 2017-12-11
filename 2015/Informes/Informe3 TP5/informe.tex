@@ -1,0 +1,586 @@
+\documentclass[conference,a4paper,10pt,oneside,final]{informe}
+\usepackage[latin1]{inputenc}   			% caracteres especiales (acentos, eñes)
+\usepackage[spanish]{babel}     			% varias definiciones para el español
+\usepackage{graphicx}           			% inserción de graficos
+\usepackage{mathtools}          			% fórmulas matemáticas
+\usepackage{hyperref}					% hipervínculos
+\usepackage{listings}					% para formatear el código fuente
+\usepackage[usenames,dvipsnames]{color}	% color
+\usepackage[table]{xcolor}				% color en tablas
+\usepackage{color}
+\usepackage{setspace}
+\usepackage[spanish]{algorithm2e}
+\usepackage{enumerate}
+
+\renewcommand{\thetable}{\arabic{table}}
+\definecolor{light-gray}{gray}{0.75}
+
+\begin{document}
+
+\onecolumn
+\title{Informe III:\\
+       Trabajo Práctico 5}
+
+\author{Edgardo Cipolatti\\
+\textit{edgardocipolatti@hotmail.com}}
+
+\markboth{CÁLCULO NUMÉRICO - AÑO 2015}{}
+
+\maketitle
+	
+\section{Ejercicio 7}
+\begin{enumerate}[a]
+\item Explique detalladamente cómo introduce las condiciones de borde de frontera sujeta en el sistema de ecuaciones lineales que permite encontrar los coeficientes del trazador cúbico sujeto. \textbf{(Observación: los pasos en la demostración del teorema 3.12 del libro de Burden no están completos, por lo que la transcripción directa de dicho teorema no bastarán para aprobar el práctico.)}
+
+\item Modifique la función desarrollada en el ejercicio 6.b) de manera que permita computar los
+coeficientes del trazador cubico sujeto. Se debe preveer el ingreso de los valores de la derivada
+de la función en los extremos del intervalo de interpolación.
+
+\item Se quiere determinar la trayectoria plana seguida por un brazo robot industrial (idealizado
+por un punto material) durante un ciclo de trabajo. El brazo robot debe satisfacer las
+siguientes restricciones: se debe encontrar en reposo en el punto (0; 0) en el instantes inicial.
+Luego de $1s$ se debe encontrar en el punto (1:5; 3), $1s$ después debe alcanzar el punto (4; 5)
+y detenerse allá, para recomenzar inmediatamente su movimiento y alcanzar, luego de otro
+segundo más el punto (3; 1) para finalmente retornar al origen luego de otro segundo más,
+donde quedará detenido para repetir el ciclo de trabajo.
+Encuentre el trazador cúbico sujeto correspondiente utilizando el código desarrollado en el
+primer inciso y luego grafique en el plano la trayectoria encontrada.
+
+\end{enumerate}
+
+
+\subsection{Ejercicio 7a}
+\textbf{Interpolante de Trazador Cúbico}\\
+Dada una función \(f\) definida en \([a,b]\) y un conjunto de nodos \(a=x_0,x_1,\ldots,x_n=b\), un \textbf{interpolante de trazador cúbico}  \(S\) para \(f\) es una función que cumple con las siguientes condiciones:\\
+
+\begin{enumerate}[a]
+\item \(S(x)\) es un polinomio cúbico denotado \(S_j(x)\) en el subintervalo \([x_j,x_{j+1}]\) para cada \(j=0,1,\ldots,n-1\);
+\item \(S(x_j) = f(x_j)\) para cada \(j=0,1,\ldots,n\);
+\item \(S_{j+1}(x_{j+1}) = S_j(x_{j+1})\) para cada \(j=0,1,\ldots,n-2\);
+\item \(S'_{j+1}(x_{j+1}) = S'_j(x_{j+1})\) para cada \(j=0,1,\ldots,n-2\);
+\item \(S''_{j+1}(x_{j+1}) = S''_j(x_{j+1})\) para cada \(j=0,1,\ldots,n-2\);
+\item Una de las siguientes condiciones de frontera se satisface:
+\begin{itemize}
+\item \(S''(x_0) = S''(x_n) = 0\) (\textbf{frontera libre o natural})
+\item \(S''(x_0)=f(x_0)\) y \(S''(x_n)=f(x_n)\) (\textbf{frontera
+sujeta})
+\end{itemize}
+\end{enumerate}
+\vspace{0.3cm}
+
+
+Si queremos construir el interpolante del trazador cúbico de una determinada función \(f\) aplicamos las condiciones de la definición a los polinomios cúbicos:
+
+\begin{equation}
+S_j(x) = a_j+b_j(x-x_j)+c_j(x-x_j)^2+d_j(x-x_j)^3
+\label{eq1}
+\end{equation}
+
+para cada $j=0,1,...,n-1$. Entonces \(S_j(x_j) = a_j = f(x_j)\). 
+Si se aplica la condición \textbf{c.} a la expresión anterior se obtiene :
+
+\begin{center}
+$a_{j+1} = S_{j+1}(x_{j+1})=S_j(x_{j+1}) = a_{j}+b_{j}(x_{j+1}-x_{j})+c_{j}(x_{j+1}-x_{j})^2+d_{j}(x_{j+1}-x_{j})^3$
+\end{center}
+para $j=0,1,...,n-2$ Por simplicidad reemplazamos $(x_{j+1}-x_{j})$ por $h_{j}$.
+Si definimos $a_{n}=f(x_{n})$ nos queda
+
+\begin{equation}
+a_{j+1}=a_j + b_jh_j + c_jh_j^2 + d_jh_j^3
+\label{eq2}
+\end{equation}
+
+de manera análoga se define $b_n=S'(x_n)$ y al aplicar la condición \textbf{d.} tenemos
+
+\begin{equation}
+b_{j+1}=b_j + 2c_jh_j + 2d_jh_j^2
+\label{eq3}
+\end{equation}
+
+Ahora, al definir $c_{j} = \frac{S_{j}^{''}(x)}{2}$ y aplicar la condición \textbf{e.} se obtiene la relación entre los coeficientes de $S_j$
+
+\begin{equation}
+c_{j+1} = c_{j} + 3d_{j}h_{j}
+\label{eq4}
+\end{equation}
+
+al despejar $d_j$ y sustituir en \ref{eq2} y \ref{eq3} se obtiene
+\begin{equation}
+a_{j+1} = a_{j} + b_{j}h_{j} + \frac {h_{j}^{2}}{3} (2c_{j} + c_{j+1})
+\label{eq5}
+\end{equation}
+
+\begin{equation}
+ b_{j+1} =b_{j} + h_{j} (c_{j} + c_{j+1})
+\label{eq6}
+\end{equation}
+
+La relación que incluye los coeficientes se obtiene despejando  $b_j$ de \ref{eq5}, por lo que se consigue
+
+\begin{equation}
+b_{j-1} = \frac{a_{j}-a_{j-1}}{h_{j-1}} - \frac{- h_{j-1}*(2c_{j-1}+c_{j})}{3}
+\label{eq7}
+\end{equation}
+si se cambia el subíndice $j$ por $j-1$ y se sustituyen los valores en \ref{eq6} obtenemos el sistema de acuaciones lineales
+
+\begin{equation}
+h_{j-1}c_{j-1} +2(h_{j-1} + h_{j})c_{j} + h_{j}c_{j+1} = \frac{3*(a_{j+1}-a_{j})}{h_{j}} - \frac{3*(a_{j}-a_{j-1})}{h_{j-1}}
+\label{eq8}
+\end{equation}
+para cada $j=1,2,...,n-1$.
+\vspace{0.3cm}
+
+\textbf{Teorema 3.12:} Si $f$ está definida en $a = x_{0} < x_{1} <\ldots<x_{n}=b$ y es diferenciable en a y b, entonces $f$ tendrá un interpolante único de trazador sujeto en los nodos $x_{0}, x_{1},...,x_{n}$; es decir, un interpolante de trazador que cumple con las condiciones de frontera $S^{'}(a)=f^{'}(a)$ y $S^{'}(b)=f^{'}(b)$.\\
+
+
+\textbf{Demostración:} Puesto que $f'(a) = S'(a) = S'(x_0) = b_0$
+(esto sale de evaluar $S'_0(x) = b_0 + 2c_0 (x - x_0) + 3d_0 (x - x_0)^2$ en $x_0$)
+podemos ver que la ecuación \ref{eq7} con $j=1$ implica que
+
+\begin{center}
+$f'(a) = \dfrac{1}{h_0} (a_1 - a_0) - \dfrac{h_0}{3} (2c_0 - c_1)$
+\end{center}
+En consecuencia 
+\begin{equation}
+\label{eq9}
+2h_0 c_0 + h_0 c_1 = \dfrac{3}{h_0} (a_1 - a_0) - 3f'(a)
+\end{equation}
+
+De manera semejante al evaluar 
+\begin{center}
+$f'(b)=S'(b)=b_n=b_{n-1}+h_{n-1}(c_{n-1}+c_n)$
+\end{center}
+
+de modo que la ecuación \ref{eq7} con $j=n$ se tiene
+
+\begin{center}
+
+
+$b_{n-1}=\frac{a_{n}-a_{n-1}}{h_{n-1}} - \frac{h_{n-1}(2c_{n-1}+c_{n})}{3}$\\
+
+$\Rightarrow f^{'}(b)=\frac{a_{n}-a_{n-1}}{h_{n-1}} - \frac{2h_{n-1}c_{n-1}}{3}-\frac{h_{n-1}c_{n}}{3} + h_{n-1}c_{n-1}+h_{n-1}c_{n}$\\
+
+$\Rightarrow f^{'}(b)=\frac{a_{n}-a_{n-1}}{h_{n-1}} + \frac{h_{n-1}c_{n-1}}{3}+\frac{2h_{n-1}c_{n}}{3}$\\
+
+$\Rightarrow f^{'}(b)=\frac{a_{n}-a_{n-1}}{h_{n-1}} -\frac{h_{n-1}c_{n-1}}{3} + \frac {2h_{n-1}c_{n}}{3}$\\
+
+$\Rightarrow 3f^{'}(b) = \frac{3(a_{n}-a_{n-1})}{h_{n-1}} + h_{n-1}c_{n-1} + 2h_{n-1}c_{n}$\\
+\end{center}
+
+\begin{equation}
+\Rightarrow h_{n-1}c_{n-1} + 2h_{n-1}c_{n} = 3f^{'}(b) - \frac{a_{n}-a_{n-1}}{h_{n-1}}
+\label{eq10}
+\end{equation}\\
+
+Combinando las expresiones \ref{eq8}, \ref{eq9} y \ref{eq10} se obtiene el sistema lineal $Ax =b$, donde\\
+
+\begin{align*}
+A &= \begin{bmatrix}
+    2h_0 & h_0 & 0 & \dots & \dots & 0 \\
+    h_0 & 2(h_0 + h_1) & h_1 & \dots & \dots & 0 \\
+    0 & h_1 & 2(h_1 + h_2) & h_2 & \dots & 0 \\
+    \vdots & \ddots & \ddots & \ddots & \ddots & \vdots \\
+    \vdots & \ddots & \ddots & h_{n-1} & 2(h_{n-2} + h_{n-1}) & h_{n-1} \\
+    0 & \dots & \dots & 0 & h_{n-1} & 2h_{n-1}
+\end{bmatrix} \\ \\
+b &= \begin{bmatrix}
+	\dfrac{3}{h_0} (a_1 - a_0) - xf'(a) \\
+	\dfrac{3}{h_1} (a_2 - a_1) = \dfrac{3}{h_0} (a_1 - a_0) \\
+	\vdots \\
+	\dfrac{3}{h_{n-1}} (a_n - a_{n-1}) = \dfrac{3}{h_{n-2}} (a_{n-1} - a_{n-2}) \\
+	3f'(b) - \dfrac{3}{h_{n-1}} (a_n - a_{n-1})
+\end{bmatrix}
+\textbf{   y   }
+x = \begin{bmatrix}
+	c_0 \\ \vspace{0,3cm} c_1 \\ \vspace{0,2cm} \vdots \\ \vdots \vspace{0,3cm} \\ c_n
+\end{bmatrix}
+\end{align*}
+
+
+La matriz A es E.D.D., y por lo tanto cumple con la condición del teorema 6.19. En consecuencia el sistema tiene única solución $c_{0}, c_{1},...,c_{n}.$
+
+
+\subsection{Ejercicio 7b}
+Se presenta el algoritmo \ref{alg1} el cual devuelve los coeficientes del spline y recibe como parámetro los valores de la variable independiente, los valores de la variable dependiente, y las derivadas en los extremos (un vector de derivadas pero solo considera el primer y ultimo elemento)
+
+\subsection{Ejercicio 7c}
+
+Primero Ordenamos los datos en una tabla de tiempo[seg], x e y:\\
+\begin{center}
+ \begin{tabular}{|c|c|c|c|c|c|}
+ \hline 
+   Tiempo [seg] & 0 & 1 & 2 & 3 & 4 \\ 
+ \hline 
+ x & 0 & 1.5 & 4 & 3 & 0 \\ 
+ \hline 
+ y & 0 & 3 & 5 & 1 & 0 \\ 
+ \hline
+ \end{tabular}
+\end{center}
+ 
+Se nos da como dato que la velocidad es igual a cero en los puntos (0,0) y (4,5), es decir, que $\frac{dx}{dt}=0$ y $\frac{dy}{dt}=0$  en ambos puntos. Se procede a realizar una interpolación para y, y otra para x. Además conocer las derivadas nos permite desarmar el problema en dos curvas de trazadores cúbicos sujetos. Siendo finalmente los mismos $S_{0},S_{1},S_{2},S_{3}$.\\
+Los polinomios para los trazadores son:
+
+\vspace{0,5cm}
+
+\(
+\begin{matrix}
+ x_{0}(t) =a_{0}+b_{0}*(t-0)+c_{0}*(t-0)^{2}+d_{0}*(t-0)^{3}\\
+ x_{1}(t) =a_{1}+b_{1}*(t-1)+c_{1}*(t-1)^{2}+d_{1}*(t-1)^{3}\\
+ y_{0}(t) =r_{0}+s_{0}*(t-0)+t_{0}*(t-0)^{2}+u_{0}*(t-0)^{3}\\
+ y_{1}(t) =r_{1}+s_{1}*(t-1)+t_{1}*(t-1)^{2}+u_{1}*(t-1)^{3}\\
+ x_{2}(t) =a_{2}+b_{2}*(t-2)+c_{2}*(t-2)^{2}+d_{2}*(t-2)^{3}\\
+ x_{3}(t) =a_{3}+b_{3}*(t-3)+c_{3}*(t-3)^{2}+d_{3}*(t-3)^{3}\\
+ y_{2}(t) =r_{2}+s_{2}*(t-2)+t_{2}*(t-2)^{2}+u_{2}*(t-2)^{3}\\
+ y_{3}(t) =r_{3}+s_{3}*(t-3)+t_{3}*(t-3)^{2}+u_{3}*(t-3)^{3}  
+ \end{matrix}
+\)
+\vspace{0,5cm}
+
+Aplicando el algoritmo \ref{alg1}, en intervalos de tiempo entre [0,2] y entre [2,4] para los valores de x e y presentados en la tabla anterior. Se obtienen los coeficientes a,b,c,d del polinomio interpolante. Se los presenta a continuación:
+
+
+
+\begin{table}[tbhp]
+
+
+\begin{flushleft}
+\begin{tabular}{l}
+$ x_{0}(t)=0  +0(t-0)+1.5(t-0)^{2}+0(t-0)^{3}$\\
+$ x_{1}(t)=1.5+3(t-1)+1.5(t-1)^{2}-2(t-1)^{3}$\\
+$ y_{0}(t)=0+0(t-0)+5.25(t-0)^{2}-2.25(t-0)^{3}$\\
+$ y_{1}(t)=3+3.75(t-1)-1.5(t-1)^{2}-0.25(t-1)^{3}$\\
+$ x_{2}(t)=4+0(t-2)+0(t-2)^{2}-1(t-2)^{3}$\\
+$ x_{3}(t)=3-3(t-3)-3(t-3)^{2}+3(t-3)^{3}$\\
+$ y_{2}(t)=5+0(t-2)-8.25(t-2)^{2}+4.25(t-2)^{3}$\\
+$ y_{3}(t)=1-3.75(t-3)+4.5(t-3)^{2}-1.75(t-3)^{3}$
+ 
+\end{tabular}
+\end{flushleft}
+\end{table}
+
+
+
+Luego se construyó el algoritmo \ref{alg2} que representa a los polinomios antes listados. Utilizando estos polinomios y evaluándolos en los intervalos [0,1],[1,2],[2,3] y [3,4] para cada caso, se procedió a graficar x vs y; se muestra dicha gráfica en la figura \ref{fig3} y además se muestra en las figuras \ref{figtxt} y \ref{figtyt} la gráfica de la función $x(t)$ y $y(t)$ respectivamente.\\
+
+
+\begin{figure}
+\centerline{\includegraphics[scale=0.6]{graficaspline}}
+\caption{Gráfica de x(t) vs y(t)}
+\label{fig3}
+\end{figure}
+
+\begin{figure}
+\centerline{\includegraphics[scale=0.6]{7cxt}}
+\caption{Gráfica de t vs x(t)}
+\label{figtxt}
+\end{figure}
+
+\begin{figure}
+\centerline{\includegraphics[scale=0.6]{7cyt}}
+\caption{Gráfica de t vs y(t)}
+\label{figtyt}
+\end{figure}
+
+\section{Ejercicio 9}
+Se realizaron tres ensayos de tracción sobre una barra de aluminio. En cada ensayo, se midieron cuatro valores de la deformación, para los mismos valores de la tensión aplicada entre ensayo y ensayo. Los resultados se muestran en la tabla \ref{tab2}. Utilizar regresión lineal para estimar el módulo de elasticidad de la barra.\\
+
+
+\begin{table}
+\begin{center}
+\begin{tabular}[tbhp]{| l | c | c | c | c |}
+\hline
+Tensión [MPa] & 34,5 & 60,9 & 103,5 & 138,0\\
+\hline
+Deformación [mm] - Test 1 & 0,46 & 0,95 & 1,48 & 1,93\\
+\hline
+Deformación [mm] - Test 2 & 0,34 & 1,02 & 1,51 & 2,09\\
+\hline
+Deformación [mm] - Test 3 & 0,73 & 1,10 & 1,62 & 2,12\\
+\hline
+\end{tabular}
+\caption{Tabla de datos ejercicio 9 - Ensayos de tracción.}
+\label{tab2}
+\end{center}
+\end{table}
+
+\vspace{2cm}
+El módulo de Young o módulo de elasticidad longitudinal es un parámetro que caracteriza el comportamiento de un material elástico, según la dirección en la que se aplica una fuerza. Este módulo es la pendiente $Y$ de la recta generada por los valores del cociente de tensión $\sigma$ en [MPa] sobre deformación $\varepsilon$ en [m]. 
+\begin{align*}
+Y=\frac{\sigma}{\varepsilon}  \hspace{2cm}  \sigma = \frac{F}{A}   \hspace{2cm} \varepsilon = \frac{\Delta l}{l_0}
+\end{align*}
+ donde F es la fuerza transversal, A es el área, $\Delta l$ es la variación de longitud y $l_0$ es la longitud inicial del material.
+
+
+
+
+El método de \textbf{mínimos cuadrados} para la resolución de este problema requiere determinar la mejor línea aproximante, cuando el error es la suma de los cuadrados de las diferencias entre los valores de $y$ en la línea aproximante y los valores de $y$ dados. Dada una colección de datos ${(x_i,y_i)}_{i=1}^m$ el método implica minimizar el error total, según:
+
+\begin{center}
+\(
+E = E_2(a_0,a_1) = \sum\limits_{i=1}^m [y_i-(a_1x_i+a_0)]^2
+\)
+\end{center}
+
+Por tanto, hay que encontrar los valores de las constantes $a_0$ y $a_1$ que minimicen el error. Para que haya un mínimo debemos tener:
+
+
+\begin{center}
+\(
+0= \frac{\partial}{\partial a_0} \sum\limits_{i=1}^m [y_i-(a_1x_i+a_0)]^2 = 2 \sum\limits_{i=1}^m (y_i - a_1x_i - a_0)(-1)
+\)
+\end{center}
+\begin{center}
+\(
+0 = \frac{\partial}{\partial a_1} \sum\limits_{i=1}^m [y_i-(a_1x_i+a_0)]^2 = 2 \sum\limits_{i=1}^m (y_i - a_1x_i - a_0)(-x_i)
+\)
+\end{center}
+
+
+Estas ecuaciones se simplifican en las ecuaciones normales:\\
+
+\begin{center}
+\(
+a_0\cdot m + a_1 \sum\limits_{i=1}^m x_i = \sum\limits_{i=1}^m y_i \text{ y } a_0 \sum\limits_{i=1}^m x_i + a_1 \sum\limits_{i=1}^m x_i^2 = \sum\limits_{i=1}^m x_iy_i
+\)
+\end{center}
+
+Operando algebraicamente estas ecuaciones se puede derivar en las expresiones finales para las constantes:\\
+
+\begin{center}
+\(
+a_0 = \frac{\sum\limits_{i=1}^m x_i^2 \sum\limits_{i=1}^m y_i - \sum\limits_{i=1}^m x_iy_i \sum\limits_{i=1}^m x_i}{m \left(\sum\limits_{i=1}^m x_i^2\right) - \left(\sum\limits_{i=1}^m x_i\right)^2} \hspace{2cm}
+a_1 = \frac{m\sum\limits_{i=1}^m x_iy_i - \sum\limits_{i=1}^m x_i \sum\limits_{i=1}^m y_i }{m \left(\sum\limits_{i=1}^m x_i^2\right) - \left(\sum\limits_{i=1}^m x_i\right)^2}
+\)
+\end{center}
+
+\vspace{0.25cm} 
+A partir de estas expresiones se elaboró el algoritmo \ref{alg11}  ''mínimos cuadrados''  el cual recibe como parámetros el conjunto de datos ${(x_i,y_i)}_{i=1}^{12}$ y nos devuelve la pendiente, la ordenada al origen y el error total de la recta de aproximación por mínimos cuadrados.\\
+La recta que se obtuvo es la siguiente: $P(x)= 65.3021[GPa]*x - 2.7177[GPa]$ donde $65.3021GPa$ es la pendiente de la recta y $2.7177GPa$ es la ordenada al origen. En este ejercicio en particular la pendiente representa el módulo de elasticidad del material (aluminio).\\
+La datos utilizados se presenta en la tabla \ref{tabresultados} y los resultados obtenidos se muestran el la figura \ref{mincuad} encontrados con el algoritmo \ref{alg3}
+
+\begin{figure}
+\centerline{\includegraphics[scale=0.80]{mincuad}}
+\caption{Recta aproximante obtenida por mínimos cuadrados}
+\label{mincuad}
+\end{figure}
+
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{| c | c | c |}
+\hline
+$x_{i}$ & $y_{i}$ & $P(x_{i})= 65.3021[GPa]*x_{i}+2.7177[GPa]$  \\
+\hline
+0.46 & 34,5  &  32.7567\\
+0.95 & 69,0  &  64.7547\\
+1.48 & 103,5 &  99.3648\\
+1.93 & 138,0 & 128.7508\\
+0.34 & 34,5  &	24.9204\\
+1.02 & 69,0  & 69.3259\\
+1.51 & 103,5 & 101.3239\\
+2.09 & 138,0 & 139.1991\\
+0.73 & 34,5  & 50.3883\\
+1.10 & 69,0  & 74.5500\\
+1.62 & 103,5 & 108.5071\\
+2.12 & 138,0 & 141.1582\\
+\hline
+
+\hline
+\end{tabular}
+\label{tabresultados}
+\caption{Datos y resultados obtenidos por Mínimos cuadrados}
+\end{center}
+\end{table}
+
+
+\vspace{5cm}
+
+
+\nocite{*}
+\bibliographystyle{informe}
+\bibliography{informe}
+
+
+% anexo. cambia de doble a simple columna
+\onecolumn										
+\section*{Anexo}									% sección 'Anexo' sin numeración
+\renewcommand{\thesection}{\Alph{section}}	% las siguientes secciones con letras en vez de número
+\setcounter{section}{0}							% equivalente a la letra "A"
+
+\section{Apéndice}
+A continuación se muestran los códigos utilizados para el desarrollo de este trabajo práctico:
+
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=MatLab,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true
+  tabsize=3
+}
+\begin{algorithm}[tbhp]
+\begin{lstlisting}
+function[a,b,c,d]=cubic_spline_sujeto(x,f,df)
+    n= length(x);
+    h= x(2:n)-x(1:n-1);
+    A = zeros(n,n);
+    rhs = zeros(n,n); 
+    A(1,1) = 2*h(1);
+    A(1,2) = h(1);
+    A(n,n-1)=h(n-1);
+    A(n,n) = 2*h(n-1);
+    rhs(1)=3*(f(2) - f(1)) / h(1) - 3* df(1);
+    rhs(n)=3* df(n) - 3*(f(n) - f(n-1)) / h(n-1);
+    
+    for i=2:n-1;
+        A(i,i-1) = h(i-1);
+        A(i,i) = 2*(h(i) + h(i-1));
+        A(i,i+1) = h(i);
+        rhs(i) = 3*(f(i+1) - f(i)) / h(i) -3*(f(i)-f(i-1))/h(i-1);
+    end 
+    c = gauss(A,rhs(:,1));
+    b = (f(2:n)-f(1:n-1))./h(1:n-1)-(2*c(1:n-1)+c(2:n)).*h(1:n-1)/3;
+    d = (c(2:n)-c(1:n-1))./(3*h(1:n-1));
+    a = f(1:n-1);
+    c = c(1:n-1);
+end
+\end{lstlisting}
+\caption{Cálculo de los coeficientes de los trazadores cúbicos}
+\label{alg1}
+\end{algorithm}
+
+\begin{algorithm}[tbhp]
+ \begin{lstlisting}
+t0=0:0.001:1;
+t1=1:0.001:2;
+t2=2:0.001:3;
+t3=3:0.001:4;
+
+Sx0=0+0*(t0-0)+1.5*(t0-0).^2+0*(t0-0).^3;
+Sx1=1.5+3*(t1-1)+1.5*(t1-1).^2-2*(t1-1).^3;
+Sx2=4+0*(t2-2)+0*(t2-2).^2-1*(t2-2).^3;
+Sx3=3-3*(t3-3)-3*(t3-3).^2+3*(t3-3).^3;
+
+Sy0=0+0*(t0-0)+5.25*(t0-0).^2-2.25*(t0-0).^3;
+Sy1=3+3.75*(t1-1)-1.5*(t1-1).^2-0.25*(t1-1).^3;
+Sy2=5+0*(t2-2)-8.25*(t2-2).^2+4.25*(t2-2).^3;
+Sy3=1-3.75*(t3-3)+4.5*(t3-3).^2-1.75*(t3-3).^3;
+
+figure(1)
+plot(Sx0,Sy0,'b','LineWidth',2)
+hold on;
+plot(Sx1,Sy1,'r','LineWidth',2)
+hold on;
+plot(Sx2,Sy2,'k','LineWidth',2)
+hold on;
+plot(Sx3,Sy3,'g','LineWidth',2)
+legend('S0','S1','S2','S3')
+xlabel('x(t)')
+ylabel('y(t)')
+
+figure(2)
+plot(t0,Sx0,'b','LineWidth',2)
+hold on;
+plot(t1,Sx1,'r','LineWidth',2)
+hold on;
+plot(t2,Sx2,'k','LineWidth',2)
+hold on;
+plot(t3,Sx3,'g','LineWidth',2)
+xlabel('t  en segundos')
+ylabel('x(t)')
+
+figure(3)
+plot(t0,Sy0,'b','LineWidth',2)
+hold on;
+plot(t1,Sy1,'r','LineWidth',2)
+hold on;
+plot(t2,Sy2,'k','LineWidth',2)
+hold on;
+plot(t3,Sy3,'g','LineWidth',2)
+xlabel('t en segundos')
+ylabel('y(t)')
+ \end{lstlisting}
+\caption{Calculo y gráfico de la posición de robot en x e y para el tiempo t}
+\label{alg2}
+\end{algorithm} 
+ 
+\begin{algorithm}[tbhp]
+ \begin{lstlisting}
+plot(x,y,'d')
+hold on
+plot((-0.5:0.001:2.5),a1*(-0.5:0.001:2.5)+a0,'r')
+xlabel('Deformación [mm]');
+ylabel('Tensión [MPa]');
+legend('Deformaciones por test y tensión','Recta aproximante')
+
+ \end{lstlisting}
+\caption{Grafica de los mínimos cuadrados}
+\label{alg3}
+\end{algorithm} 
+
+
+\begin{algorithm}[tbhp]
+ \begin{lstlisting}
+function [a0,a1,E] = minimos_cuadrados(x,y)
+    [fx,cx] = size(x);
+    [fy,cy] = size(y);
+    nx = 0; %// longitud de x
+    ny = 0; %// longitud de y
+    m = 0;
+    a0 = 0;
+    a1 = 0;
+    
+    % Determina la longitud del vector x. 
+    if fx == 1 
+        nx = cx;
+        x = x';
+    else
+        nx = fx;
+    end
+    
+    % Determina la longitud del vector y. 
+    if fy == 1 
+        ny = cy;
+        y = y';
+    else
+        ny = fy;
+    end
+    
+    if nx ~= ny 
+        disp('Dimensiones de los datos de entrada inconsistentes.');
+        return;
+    else
+        m = nx;
+    end
+    
+    a0 = (sum(x.^2)*sum(y) - sum(x.*y)*sum(x)) / (m * (sum(x.^2)) - (sum(x))^2);
+    a1 = (m*sum(x.*y) - sum(x)*sum(y)) / (m*sum(x.^2) - (sum(x)^2));
+    
+    P = zeros(m,1);
+    P(1:m) = a0 + a1 * x(1:m);
+    E = sum((y(1:m) - P(1:m)).^2);
+end 
+ 
+\end{lstlisting}
+\caption{mínimos cuadrados}
+\label{alg11}
+\end{algorithm}
+
+
+
+
+\end{document}
